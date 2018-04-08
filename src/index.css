@@ -1,0 +1,34 @@
+body{
+  width: 100%;
+}
+.row {
+  margin-right: 0px;
+  margin-left: -15px;
+}
+ul.navBar li {
+  display: inline;
+  list-style-type: none;
+}
+ul.navBar {
+  background-color: #ccc;
+  padding: 0;
+  margin: 0;
+}
+ul.navBar li a {
+  color: #FFF;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 10px;
+  display: inline-block;
+}
+.content {
+  background-color: #FFF;
+  padding: 10px;
+}
+.text-align-center{
+  text-align: center;
+  padding: 5%;
+}
+.active {
+  border-bottom: solid #fb4d0a;
+}
