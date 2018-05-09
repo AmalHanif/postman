@@ -32,3 +32,7 @@ ul.navBar li a {
 .active {
   border-bottom: solid #fb4d0a;
 }
+button, input, optgroup, select, textarea {
+  margin-top: 2px;
+  margin-bottom:2px;
+}  
