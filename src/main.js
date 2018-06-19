@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Route,NavLink,HashRouter} from "react-router-dom";
+import {Route,NavLink,BrowserRouter} from "react-router-dom";
 import {FormGroup, InputGroup,DropdownButton,Button,FormControl,MenuItem,SplitButton,Row,Col } from 'react-bootstrap';
 import ReactDataGrid from 'react-data-grid';
 import update from 'immutability-helper';
@@ -8,7 +8,8 @@ import Authorization from "./components/authorizations/authorization";
 import Header from "./components/Header";
 import Body from "./components/body/body";
 import Test from "./components/test";
-import Testing from "./components/testing";
+
+
 
 class Main extends Component {
   constructor(props, context) {
@@ -265,7 +266,7 @@ class Main extends Component {
         :null
       } 
       
-      <HashRouter>
+      <BrowserRouter>
         <div>
           <ul className="navBar">
               <li><NavLink exact to="/">Authorization</NavLink></li>
@@ -278,10 +279,9 @@ class Main extends Component {
               <Route path="/header" component={Header}/>
               <Route path="/body" component={Body}/>
               <Route path="/test" component={Test}/>
-              <Route path="/testing" component={Testing}/>
           </div>
         </div>
-      </HashRouter>
+      </BrowserRouter>
       </div> 
     );
   }

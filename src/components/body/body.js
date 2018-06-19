@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Link,HashRouter } from "react-router-dom";
+import {Link,BrowserRouter} from "react-router-dom";
 import { Route, Switch } from "react-router";
 import {FormGroup, Radio } from 'react-bootstrap';
 import Form  from "./form";
@@ -22,7 +22,7 @@ class Body extends Component   {
 
    return(
      <div>
-      <HashRouter>
+      <BrowserRouter>
           <FormGroup>
             <Link  to={`/body/form-data`}>
               <Radio name="radioGroup" inline>
@@ -45,7 +45,7 @@ class Body extends Component   {
               </Radio>
             </Link>
         </FormGroup>
-      </HashRouter>
+      </BrowserRouter>
         <Switch>
           <Route exact path='/body/form-data' component={Form} />
           <Route path='/body/urlencoded' component={UrlEncoded} />

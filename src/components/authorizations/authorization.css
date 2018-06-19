@@ -1,3 +1,27 @@
+#word_wrap{
+    word-wrap: break-word;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.modal-content {
+    position: relative;
+    background-color: #dca7a7;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #999;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: 6px;
+    outline: 0;
+    -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+    box-shadow: 0 3px 9px rgba(0,0,0,.5);
+}
+.checkbox, .radio {
+    position: initial;
+    margin-left: 180px;
+}
 .dialog{
     background: white;
 }
@@ -12,7 +36,7 @@ a {
 }
 
 .ui-dialog-overlay {
-    background: #aaaaaa;
+    background: #7D7A7A;
     opacity: .3;
     filter: Alpha(Opacity=30);
     position: fixed;
