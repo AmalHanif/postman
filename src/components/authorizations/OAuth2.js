@@ -43,6 +43,7 @@ class OAuth2 extends Component {
       showPassword:"password",
       isDialogOpen:false, 
       isDialogOpenAccess_Token:false,
+      showManageToken:false,
       initialUrlForPopup:'',
       index:0,
       token:"",
@@ -115,7 +116,7 @@ class OAuth2 extends Component {
       ],
     };
     this.SendRequest=this.SendRequest.bind(this);
-    this.openChildwindow=this.openChildwindow.bind(this);  
+    this.authenticationCode=this.authenticationCode.bind(this);  
     this.handleClose=this.handleClose.bind(this);  
     this.handleChange = this.handleChange.bind(this); 
     this.handleAllToken=this.handleAllToken.bind(this);
@@ -135,7 +136,8 @@ class OAuth2 extends Component {
 
   openDialogAccess_Token = () => this.setState({ 
     isDialogOpen: false,
-    isDialogOpenAccess_Token:true
+    isDialogOpenAccess_Token:true,
+    showManageToken:true
   }) 
   handleShowAlert=()=>this.setState({   
     showAlert:true,
@@ -177,7 +179,7 @@ class OAuth2 extends Component {
             requestobj[element.id]=updated;
         }
       });
-    this.state.requestToken=requestobj;
+    this.setState({ requestToken: requestobj });
     console.log(this.state.requestToken)
 
     //Hide some field on selected the grant Type.
@@ -210,7 +212,7 @@ class OAuth2 extends Component {
   SendRequest(){
     const grant_type=this.state.requestToken[1].value
    if(grant_type==="authorization_code") {
-      this.openChildwindow();
+      this.authenticationCode();
     }else if(grant_type==="Implicit"){
       this.implicit();
     }else if(grant_type==="PasswordCredential"){
@@ -221,11 +223,11 @@ class OAuth2 extends Component {
   }
 
   //send request against authentication code (New Access Token form)
-  openChildwindow(){
+  authenticationCode(){
     let req= this.state.requestToken;
     const initialUrlForPopup = req[3].value+"?response_type=code&client_id="+req[5].value+"&client_secret="+req[6].value+"&grant_type="+req[1].value+"&redirect_uri="+req[2].value+"&state="+req[8].value+"&scope="+req[7].value;
     // const initialUrlForPopup = "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=81khbl128ifn8q&client_secret=JTtqvuUBN9bVTlG4&grant_type=authorization_code&redirect_uri=http://localhost:3000/oauth/callback";
-    var popup= window.open( initialUrlForPopup, "POSTMAN" ,"height=500,width=500",);
+    var popup= window.open( initialUrlForPopup, "POSTMAN" ,"top=100,left=450,height=500,width=500",);
     var promise = new Promise(function(resolve, reject) {
       setTimeout(checkUrl
         , 5000)
@@ -242,6 +244,7 @@ class OAuth2 extends Component {
           localStorage.setItem("resAccessToken",JSON.stringify( res.body));  
           resolve(true); 
         });
+        popup.close()
       }       
     })
     promise.then( bool =>
@@ -254,7 +257,7 @@ class OAuth2 extends Component {
     let req= this.state.requestToken;
     const initialUrlForPopup = req[3].value+"?&client_id="+req[5].value+"&redirect_uri="+req[2].value+"&state="+req[8].value+"&scope="+req[7].value+"&response_type=token";
     // const initialUrlForPopup = "https://accounts.google.com/o/oauth2/auth?client_id=773239152720-e66mpsjpa5elhh516ulkm1rf78reamdm.apps.googleusercontent.com&redirect_uri=http://localhost:3000/oauth/callback&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email&state=STATE_STRING&response_type=token";
-    var popup=window.open( initialUrlForPopup, "POSTMAN" ,"height=500,width=500",);
+    var popup=window.open( initialUrlForPopup, "POSTMAN" ,"top=100,left=450,height=500,width=500");
     console.log(popup)
 
     var promise = new Promise(function(resolve, reject) {
@@ -273,10 +276,11 @@ class OAuth2 extends Component {
         console.log(myJson)
         localStorage.setItem("resAccessToken",JSON.stringify( myJson));  
         resolve(true); 
+        popup.close()
       }
     })
     promise.then( bool =>  
-     this.AllToken()
+     this.AllToken(),
     )
 
   }
@@ -328,11 +332,11 @@ class OAuth2 extends Component {
     console.log(responseAccessToken)
     let allToken=[],
         res =[],
-        err=[];
+        error=[];
     if(responseAccessToken.access_token=== undefined){
-      err.error=responseAccessToken.error;
-      err.error_description=responseAccessToken.error_description;
-      this.state.err=err;
+      error.error_type=responseAccessToken.error;
+      error.error_description=responseAccessToken.error_description;
+      this.setState({err:error})
       console.log()
       this.handleShowAlert();
     }else{
@@ -369,7 +373,7 @@ class OAuth2 extends Component {
     })
     //Empty input array for new Access Token
     this.state.requestToken.forEach(function(element) {
-      if(element.name!="GrantType"){
+      if(element.name!=="GrantType"){
         element.value=""
       }   
     }, this);  
@@ -393,8 +397,12 @@ class OAuth2 extends Component {
     if(event.target.selectedIndex===event.target.length-1){ //if "Manage Token" is selected
           this.openDialogAccess_Token();
     }else{//else Show access Token in the input field
-      this.state.index=event.target.selectedIndex
-      this.state.tokName=event.target.value
+      this.setState(
+        {index:event.target.selectedIndex},
+        function(){
+         this.useToken(); 
+        }
+      )
       this.useToken(); 
     }
   }
@@ -403,16 +411,18 @@ class OAuth2 extends Component {
     var delindex=e.target.id
     var arr= this.state.alltoken
     arr.splice(delindex,1)
-    this.state.alltoken=arr;
-    //if Alltoken will be removed
+      //if Alltoken will be removed
     if(this.state.alltoken.length===0){
-      this.state.alltoken=[{
+      this.setState({alltoken:[{
         tokenName:"No Token Available"
-      }]
-      this.setState({ index:0});
+      }]},function(){
+        this.setindex();
+      });
+      this.setState({ index:0,showManageToken:false});
       this.handleClose();
+    }else{
+      this.setindex();
     }
-    this.setindex();
   }
   
   render() {
@@ -423,18 +433,24 @@ class OAuth2 extends Component {
           <Col md={8}>
             <FormControl type="text" placeholder="Access Token" value={this.state.token}/>
             <FormGroup controlId="formControlsSelect">                
-              <FormControl componentClass="select" onChange={this.handleTokenAvailable} value={this.state.alltoken[this.state.index].tokenName} >
+              <FormControl componentClass="select" name="Token Avaliable" onChange={this.handleTokenAvailable} value={this.state.alltoken[this.state.index].tokenName} >
                 
                 {this.state.alltoken.map(function(token, i) {
                   return <option key={i}>{token.tokenName}</option>
                   },this
-                )} 
+                )}
+                {this.state.showManageToken &&
                 <option onClick={this.isDialogOpenAccess_Token}  >Manage Token </option> 
+                }
               </FormControl>
             </FormGroup> 
             <Button bsStyle="warning" type="button" onClick={this.openDialog}>Get New Access Token</Button>
         
-            {this.state.isDialogOpen &&
+            
+          </Col>      
+        </FormGroup>
+        
+        {this.state.isDialogOpen &&
               <Dialog class="dialog" title="Get New Access Token" modal={true} onClose={this.handleClose} >             
                 <Form>
                   <FieldGroup name="TokenName" label="Token Name" onBlur={this.handleChange} type="text" value={this.state.tokenName}  data-token="" placeholder="Token Name"  />
@@ -513,9 +529,7 @@ class OAuth2 extends Component {
                 </Form>
               </Dialog>
             }
-          </Col>      
-        </FormGroup>
-        
+
         {this.state.showAlert &&
           <Modal.Dialog>
             <Alert bsStyle="danger" onDismiss={this.handleHide} >

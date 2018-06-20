@@ -50,6 +50,7 @@ a {
 .ui-dialog {
     position: absolute;
     top: 50%;
+    left: 26%;
     outline: 0 none;
     padding: 0 !important;;
     z-index: 101;
