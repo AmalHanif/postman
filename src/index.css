@@ -5,16 +5,20 @@ body{
   margin-right: 0px;
   margin-left: -15px;
 }
-ul.navBar li {
+ul.nav-tabs li {
   display: inline;
   list-style-type: none;
+ 
 }
-ul.navBar {
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
+  border-bottom: solid #fb4d0a;
+}
+ul.nav-tabs {
   background-color: #ccc;
   padding: 0;
   margin: 0;
 }
-ul.navBar li a {
+ul.nav-tabs li a {
   color: #FFF;
   font-weight: bold;
   text-decoration: none;
@@ -28,9 +32,6 @@ ul.navBar li a {
 .text-align-center{
   text-align: center;
   padding: 5%;
-}
-.active {
-  border-bottom: solid #fb4d0a;
 }
 button, input, optgroup, select, textarea {
   margin-top: 2px;

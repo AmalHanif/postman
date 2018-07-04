@@ -1,15 +1,17 @@
 import React, { Component } from "react";
 import {Route,NavLink,BrowserRouter} from "react-router-dom";
-import {FormGroup, InputGroup,DropdownButton,Button,FormControl,MenuItem,SplitButton,Row,Col } from 'react-bootstrap';
+import {FormGroup, InputGroup,DropdownButton,Button,FormControl,MenuItem,SplitButton,Row,Col,Tabs, Tab } from 'react-bootstrap';
 import ReactDataGrid from 'react-data-grid';
 import update from 'immutability-helper';
+import axios from 'axios'
+import randomstring from "randomstring";
+import oauthSignature from "oauth-signature/dist/oauth-signature.js"
+import PropTypes from 'prop-types';
 
 import Authorization from "./components/authorizations/authorization";
 import Header from "./components/Header";
-import Body from "./components/body/body";
+import Body from "./components/body";
 import Test from "./components/test";
-
-
 
 class Main extends Component {
   constructor(props, context) {
@@ -40,6 +42,9 @@ class Main extends Component {
     ];
 
     this.state = {
+      consumerKey:"Hello world",
+      consumerSecret:"",
+       key:"",
        url:"",
        value:"",
        query:"?key=12234",
@@ -51,6 +56,10 @@ class Main extends Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUrl = this.handleUrl.bind(this);
+    this.sendRequest = this.sendRequest.bind(this);
+    this.handleSelect = this.handleSelect.bind(this);
+    
+
   }
 
   createRows = (numberOfRows) => {
@@ -123,7 +132,6 @@ class Main extends Component {
     // ----
 
     this.triggerQueryChange(currentRow.id-1);
-      
     console.log(this.state);
   };
 
@@ -211,13 +219,82 @@ class Main extends Component {
     console.log(this.state);
     return obj;
   }
+
+  sendRequest(){
+    console.log(this.state.url);
+    const timestamp= new Date().getTime() / 1000| 0,
+    nonce=randomstring.generate({length: 12,charset: 'alphabetic'}),
+    consumerKey= this.state.consumerKey
+    console.log(timestamp)
+    console.log(nonce)
+    // var nonce= 184580558
+    // var timestamp= 1530007533
+
+
+    //----------------------------------------------------------------------------
+    var httpMethod = 'GET',
+    url = 'https://api.xero.com/oauth/AccessToken',
+    parameters = {
+        oauth_consumer_key : 'FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H',
+        oauth_token:"Y3HQLI5DHXEIFRV6VUF4ZNFUPCYRKI",
+        oauth_nonce :502417227,
+        oauth_timestamp : 1530095477,
+        oauth_signature_method : 'HMAC-SHA1',
+        oauth_verifier:645559
+    },
+    consumerSecret = 'SMYHJHWQCTAMX6O7FJOWYY48TXRS7S',
+    tokenSecret ="LU8LP22QYULNZ5RVCSC1VFQYKKVN3Z",
+    // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
+    encodedSignature = oauthSignature.generate(httpMethod, url, parameters, consumerSecret,tokenSecret),
+    // generates a BASE64 encode HMAC-SHA1 hash
+    signature = oauthSignature.generate(httpMethod, url, parameters, consumerSecret, tokenSecret,
+        { encodeSignature: false})
+        console.log(parameters.oauth_token)
+      console.log("encoded_signature= "+ encodedSignature)
+      console.log("Signature= "+signature)
+    //---------------------------------------------------------------------------------------
+    //  axios.get("https://api.xero.com/oauth/RequestToken?oauth_consumer_key=FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H&oauth_nonce="+nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+timestamp+"&oauth_signature="+ encodedSignature )
+     axios.get("https://api.xero.com/oauth/AccessToken?oauth_consumer_key=FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H&oauth_nonce="+parameters.oauth_nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_token="+parameters.oauth_token+"&oauth_verifier="+parameters.oauth_verifier+"&oauth_signature="+encodedSignature )
+    .then(function(res) {
+      // res.body, res.headers, res.status
+      console.log(res)
+      console.log(res.data)
+    })
+    .catch(function(err) {
+      // err.message, err.response
+      console.log(err.response.text)
+    });
+
+    // .set('Content-Type', 'application/x-www-form-urlencoded') 
+    // // .send({oauth_consumer_key:"FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H",oauth_signature_method:"HMAC-SHA1", oauth_timestamp:"1529921861",oauth_nonce:"f1saZvRBQRA",oauth_signature:"Glz4gO5D0Eor4IMI1/ZWE6tXlCI="})
+    // .end(function(err, res){
+    //   console.log(res)
+    //   // localStorage.setItem("resAccessToken",JSON.stringify( res.body));  
+
+    // });
+  }
+  onChangeKey(newName) {
+    this.setState({
+        consumerKey: newName,
+        consumerSecret:newName
+    });
+  } 
+
+  handleSelect(key) {
+    this.setState({ key });
+  }
+
   render() {
-    return (
-      <div >
+    return (  
+      console.log(this.state.consumerKey),
+      <div>
         <Row >
         <Col componentClass={FormGroup} md={10}>
+        
+        <h1>{this.state.consumerKey}</h1>
+        {/* <h1>{this.state.consumerSecret}</h1> */}
           <InputGroup>
-            <DropdownButton componentClass={InputGroup.Button} id="input-dropdown-addon" title="action">
+            <DropdownButton componentClass={InputGroup.Button} id="input-dropdown-addon" title="action" >
               <MenuItem value="GET" eventKey="GET" >GET</MenuItem>
               <MenuItem value="POST" eventKey="POST">POST</MenuItem>              
               <MenuItem value="PUT" eventKey="PUT">PUT</MenuItem>
@@ -242,7 +319,7 @@ class Main extends Component {
         </Col>
         <Col >
           <Row  componentClass={FormGroup}>
-            <SplitButton id="send" bsStyle="info" title="Send">
+            <SplitButton id="send" bsStyle="info" title="Send" onClick={this.sendRequest}>
               <MenuItem eventKey="1">Send and Download</MenuItem>
             </SplitButton>
             <SplitButton id="save" title="Save">
@@ -251,6 +328,7 @@ class Main extends Component {
           </Row>
         </Col>
       </Row> 
+      <div className="container">
       { this.state.showMe?<div><ReactDataGrid 
         ref={ node => this.grid = node }
         enableCellSelect={true}
@@ -264,24 +342,18 @@ class Main extends Component {
         minWidth={1080}
         rowScrollTimeout={200} /></div>
         :null
-      } 
-      
-      <BrowserRouter>
-        <div>
-          <ul className="navBar">
-              <li><NavLink exact to="/">Authorization</NavLink></li>
-              <li><NavLink to="/header">Header</NavLink></li>
-              <li><NavLink to="/body">Body</NavLink></li>
-              <li><NavLink to="/test">Test</NavLink></li>
-          </ul>
-          <div className="content">
-              <Route exact path="/"  component={Authorization}/>
-              <Route path="/header" component={Header}/>
-              <Route path="/body" component={Body}/>
-              <Route path="/test" component={Test}/>
-          </div>
-        </div>
-      </BrowserRouter>
+      }
+      </div>
+    <Tabs  activeKey={this.state.key}
+        onSelect={this.handleSelect}
+        id="controlled-tab-example">
+   
+      <Tab className="container"eventKey={1} title="Authorization"><Authorization changeLink={this.onChangeKey.bind(this)}/></Tab>
+      <Tab className="container" eventKey={2} title="Body"><Body/></Tab>
+      <Tab className="container" eventKey={3} title="Headers"><Header/></Tab>
+      <Tab className="container" eventKey={4} title="Tests"><Test/></Tab>
+    </Tabs>
+  
       </div> 
     );
   }

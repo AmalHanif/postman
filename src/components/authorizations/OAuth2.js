@@ -3,6 +3,8 @@ import Dialog from 'react-dialog';
 import {Form,Col,FormGroup,ControlLabel,FormControl, Button,Alert,Modal, Checkbox} from 'react-bootstrap';
 import update from 'immutability-helper';
 import request from "superagent/superagent";
+
+
 import "./authorization.css";
 
 //FieldGroup of Dialog box for new Access Token
@@ -30,7 +32,7 @@ function AccessToken({label,value}) {
   );
 }
 
-class OAuth2 extends Component {
+export class OAuth2 extends Component {
   constructor(props, context) {
     super(props);
    
@@ -544,6 +546,3 @@ class OAuth2 extends Component {
     );
   }
 }
-
-
-export default OAuth2;

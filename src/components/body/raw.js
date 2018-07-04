@@ -1,7 +1,7 @@
 import React from "react";
 import Codemirror from "react-codemirror";
 import "../../../node_modules/codemirror/lib/codemirror.css";
-import "./body.css"
+// import "./body.css"
 
 class Raw extends React.Component {
     constructor(props, context) {

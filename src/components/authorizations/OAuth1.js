@@ -1,46 +1,63 @@
 import React, { Component } from "react";
-import {Form,Col,FormGroup,ControlLabel,FormControl,Checkbox} from 'react-bootstrap';
-class OAuth1 extends Component {
+import {Form,Col,FormGroup,ControlLabel,FormControl,Checkbox,Button} from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
+export class OAuth1 extends Component {
   constructor(props) {
-    super(props);
+    super();
     this.state = {
       value:false,
+      consumerKey: "",
+      consumerSecret: "",
+      accessToken:"",
+      tokenSecret:""
     }
     this.handleClick = this.handleClick.bind(this);
-   
   };
  
   handleClick(event) {
       this.setState({value:!this.state.value});
   };
 
- render() {
+  onChangeLink() {
+    this.props.changeLink(this.state.consumerKey);
+  }
+
+  onHandleChange(event) {
+      this.setState({
+        consumerKey: event.target.value
+      },function(){
+        this.onChangeLink();
+      });
+      
+  }
+  render() {
     return (
       <div>
       <Form>
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Consumer Key</Col>
           <Col md={8}>
-            <FormControl type="text" placeholder="Consumer Key" />
+            {/* <button onClick={this.onChangeLink.bind(this)} className="btn btn-primary">Change Header Link</button> */}
+            <FormControl type="text" placeholder="Consumer Key"  onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.consumerKey}/>
           </Col>
         </FormGroup>
         <FormGroup>
-          <Col componentClass={ControlLabel} md={4}>Consumer Sercret</Col>
+          <Col componentClass={ControlLabel} md={4}>Consumer Secret</Col>
           <Col md={8}>
-            <FormControl type="text" placeholder="Consumer Sercret" />
+            <FormControl type="text" placeholder="Consumer Sercret" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.consumerSecret} />
           </Col>
         </FormGroup>
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Access Token </Col>
           <Col md={8}>
-            <FormControl type="text" placeholder="Access Token" />
+            <FormControl type="text" placeholder="Access Token" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.accessToken} />
           </Col>
         </FormGroup>
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Token Secret </Col>
           <Col md={8}>
-            <FormControl type="text" placeholder="Token Secret" />
+            <FormControl type="text" placeholder="Token Secret" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.tokenSecret}/>
           </Col>
         </FormGroup>
       </Form>
@@ -93,6 +110,7 @@ class OAuth1 extends Component {
       </div>
     );
   }
-}
-
-export default OAuth1;
+};
+OAuth1.propTypes = {
+  initialKey: React.PropTypes.string
+};

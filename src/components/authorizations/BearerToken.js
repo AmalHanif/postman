@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import{FormGroup,ControlLabel, FormControl,Col } from 'react-bootstrap';
-class BearerToken extends Component {
+export class BearerToken extends Component {
  render() {
    return (
      <div>
@@ -14,5 +14,3 @@ class BearerToken extends Component {
    );
  }
 }
-
-export default BearerToken;

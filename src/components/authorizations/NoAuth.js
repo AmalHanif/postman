@@ -1,15 +1,11 @@
-import React, { Component } from "react";
-
-class NoAuth extends Component {
- 
-
- render() {
+import React from "react";
+import { } from 'react-bootstrap';
+export const NoAuth =(props) =>{
+  
    return (
      <div>
-       <p className="text-align-center">This request does not use any authorization. <a bsstyle="warning">Learn more about authorization</a></p>
+       <p className="text-align-center">This request does not use any authorization. <a>Learn more about authorization</a></p>
      </div>
    );
- }
 }
-
-export default NoAuth;
+// export default NoAuth
