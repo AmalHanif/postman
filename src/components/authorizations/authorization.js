@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import {Row,Col,FormGroup,ControlLabel,FormControl, Button } from 'react-bootstrap';
-import PropTypes from 'prop-types';
 
 import "./authorization.css";
 import {NoAuth} from "./NoAuth";
@@ -11,14 +10,7 @@ import {OAuth2} from "./OAuth2";
 class Authorization extends Component {
   constructor(props) {
     super();
-    this.oAuth1=[{
-      consumerKey:  "Hello World",
-      consumerSecret:"Secret Key",
-    }]
     this.state = {
-      consumerKey:  props.initialconsumerKey,
-      consumerSecret:"Secret Key",
-      value:"",
       noAuth:true,
       bearerToken:false,
       oAuth1:false,
@@ -56,25 +48,18 @@ class Authorization extends Component {
     }
   };
  
-  onChangeOauth1(newName) {
-    this.setState({
-        consumerKey: newName
-    },function(){
-      this.onChangeLink();
+  onChangeOauth1(newData) {
+    this.setState ({
+      oAuth1Data:newData
+    }
+   ,function(){
+      this.onChange();
     });
-  } 
-  onChangeLink() {
-    this.props.changeLink(this.state.consumerKey);
+  }
+  onChange() {
+    this.props.changeField(this.state.oAuth1Data);
   }
 
-  onHandleChange(event) {
-      this.setState({
-        consumerKey: event.target.value
-      },function(){
-        this.onChangeLink();
-      });
-     
-  }
  render() {
    return (
       <Row>
@@ -113,7 +98,7 @@ class Authorization extends Component {
           </div>}
           
           {this.state.oAuth1&&<div>
-            <OAuth1 changeLink={this.onChangeOauth1.bind(this)}
+            <OAuth1 changeField={this.onChangeOauth1.bind(this)}
                            />
           </div>}
 
@@ -127,7 +112,4 @@ class Authorization extends Component {
 
  }
 }
-Authorization.propTypes = {
-  initialconsumerKey: PropTypes.string
-};
 export default Authorization;

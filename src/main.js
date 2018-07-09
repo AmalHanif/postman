@@ -1,12 +1,10 @@
 import React, { Component } from "react";
-import {Route,NavLink,BrowserRouter} from "react-router-dom";
 import {FormGroup, InputGroup,DropdownButton,Button,FormControl,MenuItem,SplitButton,Row,Col,Tabs, Tab } from 'react-bootstrap';
 import ReactDataGrid from 'react-data-grid';
 import update from 'immutability-helper';
 import axios from 'axios'
 import randomstring from "randomstring";
 import oauthSignature from "oauth-signature/dist/oauth-signature.js"
-import PropTypes from 'prop-types';
 
 import Authorization from "./components/authorizations/authorization";
 import Header from "./components/Header";
@@ -42,26 +40,33 @@ class Main extends Component {
     ];
 
     this.state = {
-      consumerKey:"Hello world",
-      consumerSecret:"",
+      oauth1_consumerKey:"",
+      oauth1_consumerSecret:"",
+      oauth1_accessToken:"",
+      oauth1_tokenSecret:"",
+      httpmethod:"GET",
+       
        key:"",
        url:"",
        value:"",
-       query:"?key=12234",
        finalQuery : "",
        currentRowId:0,
        rows: this.createRows(1),
-       showMe:false,
+       showParams:false,
        isDialogOpen: false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUrl = this.handleUrl.bind(this);
     this.sendRequest = this.sendRequest.bind(this);
-    this.handleSelect = this.handleSelect.bind(this);
-    
-
+    this.saveOAuth1data = this.saveOAuth1data.bind(this);
+    this.onSelectMethod = this.onSelectMethod.bind(this);
+    // this.addParams = this.addParams.bind(this);
   }
-
+  onSelectMethod(event){
+    this.setState({
+      method:event
+    })
+  } 
   createRows = (numberOfRows) => {
     let rows = [];
     for (let i = 0; i < numberOfRows; i++) {
@@ -106,7 +111,7 @@ class Main extends Component {
   
   operation =() =>{
     this.setState({
-      showMe:!this.state.showMe
+      showParams:!this.state.showParams
     })
   };
   
@@ -175,6 +180,7 @@ class Main extends Component {
   }
 
   parseQuery(url,currentRowId){
+    console.log(url)
     let obj = {};
     obj.params = {};
     let questionMark = url.indexOf('?');
@@ -198,104 +204,130 @@ class Main extends Component {
         let index = this.findInArray  (rowHolder, match[1]);
         if (index > -1) {
           rowHolder[index].value = match[2];
-          updatedRow= update(rowHolder[index],{$merge:{key:match[1], value: match[2]}})
+          updatedRow= update(rowHolder[index],{$merge:{id:index+1,key:match[1], value: match[2]}})
           rowHolder[count]=updatedRow;
         }else{
-          if(rowHolder[count]===rowHolder.lenght){ 
+          if(count===rowHolder.length){ 
             rowHolder.push({key:match[1], value: match[2]})
             const newRow = this.createRowObjectData(count);
             rowHolder = update( this.state.rows, {$push: [newRow]});
+            
           }
           else{
-            updatedRow= update(rowHolder[count],{$merge:{key:match[1], value: match[2]}})
+            updatedRow= update(rowHolder[count],{$merge:{id:count+1,key:match[1], value: match[2]}})
             rowHolder[count]=updatedRow;
           }
         }
-        count=+1;
+        count=count+1;
       }  
     }
     this.setState( {rows: rowHolder});
-
-    console.log(this.state);
     return obj;
   }
 
   sendRequest(){
-    console.log(this.state.url);
     const timestamp= new Date().getTime() / 1000| 0,
-    nonce=randomstring.generate({length: 12,charset: 'alphabetic'}),
-    consumerKey= this.state.consumerKey
-    console.log(timestamp)
-    console.log(nonce)
-    // var nonce= 184580558
-    // var timestamp= 1530007533
-
-
-    //----------------------------------------------------------------------------
-    var httpMethod = 'GET',
-    url = 'https://api.xero.com/oauth/AccessToken',
-    parameters = {
-        oauth_consumer_key : 'FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H',
-        oauth_token:"Y3HQLI5DHXEIFRV6VUF4ZNFUPCYRKI",
-        oauth_nonce :502417227,
-        oauth_timestamp : 1530095477,
-        oauth_signature_method : 'HMAC-SHA1',
-        oauth_verifier:645559
-    },
-    consumerSecret = 'SMYHJHWQCTAMX6O7FJOWYY48TXRS7S',
-    tokenSecret ="LU8LP22QYULNZ5RVCSC1VFQYKKVN3Z",
-    // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
-    encodedSignature = oauthSignature.generate(httpMethod, url, parameters, consumerSecret,tokenSecret),
-    // generates a BASE64 encode HMAC-SHA1 hash
-    signature = oauthSignature.generate(httpMethod, url, parameters, consumerSecret, tokenSecret,
-        { encodeSignature: false})
-        console.log(parameters.oauth_token)
-      console.log("encoded_signature= "+ encodedSignature)
-      console.log("Signature= "+signature)
-    //---------------------------------------------------------------------------------------
-    //  axios.get("https://api.xero.com/oauth/RequestToken?oauth_consumer_key=FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H&oauth_nonce="+nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+timestamp+"&oauth_signature="+ encodedSignature )
-     axios.get("https://api.xero.com/oauth/AccessToken?oauth_consumer_key=FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H&oauth_nonce="+parameters.oauth_nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_token="+parameters.oauth_token+"&oauth_verifier="+parameters.oauth_verifier+"&oauth_signature="+encodedSignature )
-    .then(function(res) {
-      // res.body, res.headers, res.status
-      console.log(res)
-      console.log(res.data)
-    })
-    .catch(function(err) {
-      // err.message, err.response
-      console.log(err.response.text)
-    });
-
-    // .set('Content-Type', 'application/x-www-form-urlencoded') 
-    // // .send({oauth_consumer_key:"FBZCWC5H01LTJ3YYD8GR1FPYKFRS2H",oauth_signature_method:"HMAC-SHA1", oauth_timestamp:"1529921861",oauth_nonce:"f1saZvRBQRA",oauth_signature:"Glz4gO5D0Eor4IMI1/ZWE6tXlCI="})
-    // .end(function(err, res){
-    //   console.log(res)
-    //   // localStorage.setItem("resAccessToken",JSON.stringify( res.body));  
-
-    // });
+    nonce=randomstring.generate({length: 12,charset: 'alphabetic'})
+    console.log(this.state.url);
+    if(this.state.oauth1_accessToken===""&&this.state.oauth1_tokenSecret===""){
+      var httpMethod = this.state.httpmethod,
+      url = this.state.url,
+      parameters = {
+          oauth_consumer_key : this.state.oauth1_consumerKey,
+          oauth_nonce :nonce,
+          oauth_timestamp :timestamp,
+          oauth_signature_method : "HMAC-SHA1",
+          // oauth_token: this.state.oauth1_accessToken,
+          // oauth_verifier:""
+      },
+      consumerSecret = this.state.oauth1_consumerSecret,
+      // oauth1_tokenSecret =this.state.oauth1_tokenSecret,
+      // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
+      encodedSignature = oauthSignature.generate(httpMethod, url, parameters,consumerSecret ),
+      // generates a BASE64 encode HMAC-SHA1 hash
+      signature = oauthSignature.generate(httpMethod, url, parameters,consumerSecret ,
+          { encodeSignature: false})
+      
+        console.log("encoded_signature= "+ encodedSignature)
+        console.log("Signature= "+signature)
+      //---------------------------------------------------------------------------------------
+      var url =this.state.url+"?oauth_consumer_key="+parameters.oauth_consumer_key+"&oauth_nonce="+parameters.oauth_nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_signature="+ encodedSignature
+      this.parseQuery(url)
+       axios.get(this.state.url+"?oauth_consumer_key="+parameters.oauth_consumer_key+"&oauth_nonce="+parameters.oauth_nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_signature="+ encodedSignature )
+      //  axios.get("https://api.xero.com/oauth/oauth1_AccessToken?oauth_consumer_key=NFJWQ22Z5I4EIYTNW6IUZEY5XVJ7NF&oauth_nonce="+parameters.oauth_nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_token="+parameters.oauth_token+"&oauth_verifier="+parameters.oauth_verifier+"&oauth_signature="+encodedSignature )
+      .then(function(res) {
+        // res.body, res.headers, res.status
+        console.log(res)
+        console.log(res.data)
+      })
+      .catch(function(err) {
+        // err.message, err.response
+        console.log(err.response)
+      });
+    }
+    else{
+      var httpMethod = 'GET',
+      url = this.state.url,
+      parameters = {
+          oauth_consumer_key : this.state.oauth1_consumerKey,
+          oauth_nonce :this.state.nonce,
+          oauth_timestamp :this.statetimestamp,
+          oauth_signature_method : "HMAC-SHA1",
+          oauth_token: this.state.oauth1_accessToken
+      },
+      oauth1_consumerSecret = this.state.oauth1_consumerSecret,
+      oauth1_tokenSecret =this.state.oauth1_tokenSecret,
+      // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
+      encodedSignature = oauthSignature.generate(httpMethod, url, parameters,oauth1_consumerSecret ,oauth1_tokenSecret),
+      // generates a BASE64 encode HMAC-SHA1 hash
+      signature = oauthSignature.generate(httpMethod, url, parameters, oauth1_consumerSecret ,oauth1_tokenSecret,
+          { encodeSignature: false})
+      
+        console.log("encoded_signature= "+ encodedSignature)
+        console.log("Signature= "+signature)
+      //---------------------------------------------------------------------------------------
+      var url= this.state.url+"&oauth_consumer_key="+parameters.oauth_consumer_key+"oauth_nonce="+parameters.oauth_nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_token="+parameters.oauth_token+"&oauth_signature="+encodedSignature
+       
+      axios.get(this.state.url+"&oauth_consumer_key="+parameters.oauth_consumer_key+"oauth_nonce="+parameters.oauth_nonce+"&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_token="+parameters.oauth_token+"&oauth_signature="+encodedSignature )
+      .then(function(res) {
+        // res.body, res.headers, res.status
+        console.log(res)
+        console.log(res.data)
+      })
+      .catch(function(err) {
+        // err.message, err.response
+        console.log(err.response)
+      });
+    }
   }
-  onChangeKey(newName) {
-    this.setState({
-        consumerKey: newName,
-        consumerSecret:newName
-    });
-  } 
 
-  handleSelect(key) {
-    this.setState({ key });
+  saveOAuth1data(newData){
+    console.log(newData)
+    if(newData.name==="consumerKey"){
+      this.setState({oauth1_consumerKey:newData.value})
+    }else if(newData.name==="consumerSecret"){
+      this.setState({oauth1_consumerSecret:newData.value})
+    }else if(newData.name==="accessToken"){
+      this.setState({oauth1_accessToken:newData.value})
+    }else if(newData.name==="tokenSecret"){
+      this.setState({oauth1_tokenSecret:newData.value})
+    }
+    const ts= new Date().getTime() / 1000| 0,
+    nonce=randomstring.generate({length: 12,charset: 'alphabetic'})
+    this.setState({
+      timestamp:ts,
+      nonce:nonce
+    })
   }
 
   render() {
     return (  
-      console.log(this.state.consumerKey),
       <div>
         <Row >
         <Col componentClass={FormGroup} md={10}>
-        
-        <h1>{this.state.consumerKey}</h1>
-        {/* <h1>{this.state.consumerSecret}</h1> */}
           <InputGroup>
-            <DropdownButton componentClass={InputGroup.Button} id="input-dropdown-addon" title="action" >
-              <MenuItem value="GET" eventKey="GET" >GET</MenuItem>
+            <DropdownButton componentClass={InputGroup.Button} id="input-dropdown-addon" title={this.state.httpmethod} onSelect={this.onSelectMethod}>
+              <MenuItem defaultValue="GET" eventKey="GET" >GET</MenuItem>
               <MenuItem value="POST" eventKey="POST">POST</MenuItem>              
               <MenuItem value="PUT" eventKey="PUT">PUT</MenuItem>
               <MenuItem value="PATCH" eventKey="PATCH">PATCH</MenuItem>
@@ -329,7 +361,7 @@ class Main extends Component {
         </Col>
       </Row> 
       <div className="container">
-      { this.state.showMe?<div><ReactDataGrid 
+      { this.state.showParams?<div><ReactDataGrid 
         ref={ node => this.grid = node }
         enableCellSelect={true}
         columns={this.getColumns()}
@@ -344,11 +376,9 @@ class Main extends Component {
         :null
       }
       </div>
-    <Tabs  activeKey={this.state.key}
-        onSelect={this.handleSelect}
-        id="controlled-tab-example">
+    <Tabs id="controlled-tab-example">
    
-      <Tab className="container"eventKey={1} title="Authorization"><Authorization changeLink={this.onChangeKey.bind(this)}/></Tab>
+      <Tab className="container"eventKey={1} title="Authorization"><Authorization changeField={this.saveOAuth1data.bind(this)}/></Tab>
       <Tab className="container" eventKey={2} title="Body"><Body/></Tab>
       <Tab className="container" eventKey={3} title="Headers"><Header/></Tab>
       <Tab className="container" eventKey={4} title="Tests"><Test/></Tab>

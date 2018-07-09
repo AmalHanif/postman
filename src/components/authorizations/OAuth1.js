@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import {Form,Col,FormGroup,ControlLabel,FormControl,Checkbox,Button} from 'react-bootstrap';
-import PropTypes from 'prop-types';
+import {Form,Col,FormGroup,ControlLabel,FormControl,Checkbox} from 'react-bootstrap';
 
 export class OAuth1 extends Component {
   constructor(props) {
@@ -19,18 +18,26 @@ export class OAuth1 extends Component {
       this.setState({value:!this.state.value});
   };
 
-  onChangeLink() {
-    this.props.changeLink(this.state.consumerKey);
+  
+
+  onHandleChange(event,prevState) {
+    let newData={};
+      newData.name=event.target.name
+      newData.value=event.target.value
+    
+    this.setState(prevState => ({
+      oAuth1Data:newData
+    }),function(){
+      this.onChangeField();
+      console.log(this.state.oAuth1Data.name+" : "+this.state.oAuth1Data.value)
+    });     
   }
 
-  onHandleChange(event) {
-      this.setState({
-        consumerKey: event.target.value
-      },function(){
-        this.onChangeLink();
-      });
-      
-  }
+  onChangeField() {
+    this.props.changeField(this.state.oAuth1Data);
+    // this.props.changeFieldValue(this.state.oAuth1Value)
+  } 
+
   render() {
     return (
       <div>
@@ -38,26 +45,26 @@ export class OAuth1 extends Component {
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Consumer Key</Col>
           <Col md={8}>
-            {/* <button onClick={this.onChangeLink.bind(this)} className="btn btn-primary">Change Header Link</button> */}
-            <FormControl type="text" placeholder="Consumer Key"  onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.consumerKey}/>
+            {/* <button onClick={this.onChangeField.bind(this)} className="btn btn-primary">Change Header Feild</button> */}
+            <FormControl type="text" name="consumerKey"placeholder="Consumer Key"  onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.consumerKey}/>
           </Col>
         </FormGroup>
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Consumer Secret</Col>
           <Col md={8}>
-            <FormControl type="text" placeholder="Consumer Sercret" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.consumerSecret} />
+            <FormControl type="text" name="consumerSecret" placeholder="Consumer Sercret" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.consumerSecret} />
           </Col>
         </FormGroup>
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Access Token </Col>
           <Col md={8}>
-            <FormControl type="text" placeholder="Access Token" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.accessToken} />
+            <FormControl type="text" name="accessToken" placeholder="Access Token" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.accessToken} />
           </Col>
         </FormGroup>
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Token Secret </Col>
           <Col md={8}>
-            <FormControl type="text" placeholder="Token Secret" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.tokenSecret}/>
+            <FormControl type="text" name="tokenSecret" placeholder="Token Secret" onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.tokenSecret}/>
           </Col>
         </FormGroup>
       </Form>
@@ -110,7 +117,4 @@ export class OAuth1 extends Component {
       </div>
     );
   }
-};
-OAuth1.propTypes = {
-  initialKey: React.PropTypes.string
 };
