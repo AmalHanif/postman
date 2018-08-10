@@ -11,21 +11,28 @@ class Test extends React.Component {
     this.mode='markdown';
   };   
 
-  updateCode = (newCode) =>{
+  updateCode =(newCode) =>{
     this.setState({
       code: newCode
+    },function(){
+      this.onChangeField();
     });
+  }
+
+  onChangeField() {
+  this.props.changeForm(this.state.code);
   }
 
   render () {
     var options = {
-          lineNumbers: true,
+      lineNumbers: true,
+      currentline:true
     };
     return (
-      <div>  
-        <Codemirror  ref="editor" value={this.code} onChange={this.updateCode} options={options} autoFocus={true} />
+      <div>
+        <Codemirror ref="editor" value={this.code} onChange={this.updateCode} theme="default" options={options} autoFocus={true} />
       </div>
     );
-  }
+  } 
 };
 export default Test;

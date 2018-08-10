@@ -15,6 +15,7 @@ class Authorization extends Component {
       bearerToken:false,
       oAuth1:false,
       oAuth2:false,
+      otherValue:false,
     }
     this.handleChange = this.handleChange.bind(this);
     this.operation = this.operation.bind(this);
@@ -25,9 +26,10 @@ class Authorization extends Component {
       noAuth:false,
       bearerToken:false,
       oAuth1:false,
-      oAuth2:false
+      oAuth2:false,
     });
     this.operation(event);
+    this.onChange(this.state.otherValue);
   };
   operation(event){
    
@@ -48,16 +50,16 @@ class Authorization extends Component {
     }
   };
  
-  onChangeOauth1(newData) {
+  onChange(newData) {
     this.setState ({
-      oAuth1Data:newData
+      Data:newData
     }
    ,function(){
-      this.onChange();
+      this.onChangeField();
     });
   }
-  onChange() {
-    this.props.changeField(this.state.oAuth1Data);
+  onChangeField() {
+    this.props.changeField(this.state.Data);
   }
 
  render() {
@@ -94,11 +96,11 @@ class Authorization extends Component {
           </div>}
 
           {this.state.bearerToken&&<div >
-            <BearerToken/>
+            <BearerToken changeField={this.onChange.bind(this)}/>
           </div>}
           
           {this.state.oAuth1&&<div>
-            <OAuth1 changeField={this.onChangeOauth1.bind(this)}
+            <OAuth1 changeField={this.onChange.bind(this)}
                            />
           </div>}
 

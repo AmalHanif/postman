@@ -45,7 +45,6 @@ export class OAuth1 extends Component {
         <FormGroup>
           <Col componentClass={ControlLabel} md={4}>Consumer Key</Col>
           <Col md={8}>
-            {/* <button onClick={this.onChangeField.bind(this)} className="btn btn-primary">Change Header Feild</button> */}
             <FormControl type="text" name="consumerKey"placeholder="Consumer Key"  onBlur={(event) => this.onHandleChange(event)}  defaultValue={this.state.consumerKey}/>
           </Col>
         </FormGroup>

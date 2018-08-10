@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDataGrid from 'react-data-grid';
 import update from 'immutability-helper';
+import PropTypes from 'prop-types';
 
 class Header extends React.Component {
   constructor(props, context) {
-    super(props, context);
+    super();
     this._columns = [
       {
         key: 'key',
@@ -14,7 +15,7 @@ class Header extends React.Component {
         resizable: true
       },
       {
-        key: 'value',
+        key: 'Value',
         name: 'Value',
         editable: true,
         width: 340,
@@ -29,7 +30,11 @@ class Header extends React.Component {
       },
     ];
 
-    this.state = { rows: this.createRows(1) };
+    this.state = {
+      keyValue: props.initialKey,
+      // value: props.initialValue,
+       rows: this.createRows(1) 
+    };
   }
 
   createRows = (numberOfRows) => {
@@ -44,7 +49,7 @@ class Header extends React.Component {
     return {
       id: index+1,
       key:'',
-      value: '',
+      Value: '',
       description: '',
     };
   };
@@ -62,7 +67,12 @@ class Header extends React.Component {
     return clonedColumns;
   };
 
-  handleGridRowsUpdated = ({ fromRow, toRow, updated,newRowIndex,numberOfRows }) => {
+  handleGridRowsUpdated = ({ fromRow, toRow, updated,newRowIndex,numberOfRows,rowIds }) => {
+    
+    // if(this.props.initialKey!==""&&this.props.initialValue!==""){
+    //   updated={key:this.props.initialKey,value:this.props.initialValue};
+    //   fromRow=this.state.rows.length-1;
+    // }
     let rows = this.state.rows.slice();
     for (let i = fromRow; i <= toRow; i++) {
       if(this.state.rows.length===rows[i].id){
@@ -71,12 +81,7 @@ class Header extends React.Component {
         let updatedRow = update(rowToUpdate, {$merge: updated});
         rows[i] = updatedRow;
         if(rows[i].key!=="" || rows[i].value!=="" ||rows[i].description!=="" ){
-          const newRow = {
-            id: rows[i].id+1 ,
-            key:'',
-            value: '',
-            description: '',
-          };
+          const newRow = this.createRowObjectData(rows.length);
           rows = update(rows, {$push: [newRow]}); 
         }   
       } 
@@ -86,7 +91,9 @@ class Header extends React.Component {
         rows[i] = updatedRow;
       }  
     }
-    this.setState({ rows })
+    this.setState({ rows },function(){
+      this.onChangeField();
+    })
   };
 
   getRowAt = (index) => {
@@ -101,6 +108,16 @@ class Header extends React.Component {
     return this.state.rows.length;
   };
 
+  onChangeField() {
+    this.props.changeHeader(this.state.rows);
+    // this.props.changeFieldValue(this.state.oAuth1Value)
+  } 
+  componentDidmount(){
+
+    let updatedRow = update(this.state.rows, {$merge: this.props.headerParams});
+    this.state.rows= updatedRow
+  }
+
   render() {
     return (
       <ReactDataGrid
@@ -114,9 +131,14 @@ class Header extends React.Component {
         rowHeight={40}
         minHeight={200}
         minWidth={1080}
-        rowScrollTimeout={200} />);
+        rowScrollTimeout={200} />
+      );
   }
 }
 
 export default Header;
 
+Header.propTypes = {
+ headerParams: PropTypes.array
+  // description:PropTypes.string
+}

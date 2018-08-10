@@ -62,7 +62,13 @@ class Form extends React.Component {
     return clonedColumns;
   };
 
-  handleGridRowsUpdated = ({ fromRow, toRow, updated,newRowIndex,numberOfRows }) => {
+  
+  handleGridRowsUpdated = ({ fromRow, toRow, updated,newRowIndex,numberOfRows,rowIds }) => {
+    
+    // if(this.props.initialKey!==""&&this.props.initialValue!==""){
+    //   updated={key:this.props.initialKey,value:this.props.initialValue};
+    //   fromRow=this.state.rows.length-1;
+    // }
     let rows = this.state.rows.slice();
     for (let i = fromRow; i <= toRow; i++) {
       if(this.state.rows.length===rows[i].id){
@@ -71,12 +77,7 @@ class Form extends React.Component {
         let updatedRow = update(rowToUpdate, {$merge: updated});
         rows[i] = updatedRow;
         if(rows[i].key!=="" || rows[i].value!=="" ||rows[i].description!=="" ){
-          const newRow = {
-            id: rows[i].id+1 ,
-            key:'',
-            value: '',
-            description: '',
-          };
+          const newRow = this.createRowObjectData(rows.length);
           rows = update(rows, {$push: [newRow]}); 
         }   
       } 
@@ -86,7 +87,9 @@ class Form extends React.Component {
         rows[i] = updatedRow;
       }  
     }
-    this.setState({ rows })
+    this.setState({ rows },function(){
+      this.onChangeField();
+    })
   };
 
   getRowAt = (index) => {
@@ -100,7 +103,9 @@ class Form extends React.Component {
   getSize = () => {
     return this.state.rows.length;
   };
-
+  onChangeField() {
+    this.props.changeForm(this.state.rows);
+  }
   render() {
     return (
       <ReactDataGrid
