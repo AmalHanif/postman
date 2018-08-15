@@ -68,11 +68,6 @@ class Header extends React.Component {
   };
 
   handleGridRowsUpdated = ({ fromRow, toRow, updated,newRowIndex,numberOfRows,rowIds }) => {
-    
-    // if(this.props.initialKey!==""&&this.props.initialValue!==""){
-    //   updated={key:this.props.initialKey,value:this.props.initialValue};
-    //   fromRow=this.state.rows.length-1;
-    // }
     let rows = this.state.rows.slice();
     for (let i = fromRow; i <= toRow; i++) {
       if(this.state.rows.length===rows[i].id){
@@ -109,7 +104,16 @@ class Header extends React.Component {
   };
 
   onChangeField() {
-    this.props.changeHeader(this.state.rows);
+    var header={},
+    arr=this.state.rows;
+
+    arr.forEach(function(element) {
+      if(element.key!==""){
+        var K= element.key, V=element.Value;
+        header=Object.assign(header,{[K]: V})
+      }
+    }, this);
+    this.props.changeHeader(header,this.state.rows);
     // this.props.changeFieldValue(this.state.oAuth1Value)
   } 
   componentDidmount(){

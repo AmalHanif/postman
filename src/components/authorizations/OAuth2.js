@@ -232,7 +232,7 @@ export class OAuth2 extends Component {
     var popup= window.open( initialUrlForPopup, "POSTMAN" ,"top=100,left=450,height=500,width=500",);
     var promise = new Promise(function(resolve, reject) {
       setTimeout(checkUrl
-        , 5000)
+        , 10000)
 
       function checkUrl(){
         const auth_code=popup.location.search,

@@ -289,15 +289,19 @@ class Main extends Component {
     }  
     //---------------------------------------------------------------------------------------
     if(this.state.bearerToken!==""){
-      if(this.state.header!==""){
-        var header= update(this.state.header,{$push:[{id:this.state.header.length, key:"Authorization", Value :"Bearer "+this.state.bearerToken}]})
-        this.state.header=header
-        this.setState({
-          headerParams:this.state.header
-        })
-        console.log(this.state.header,this.state.headerParams)
-      }
-     
+      var rowSize=this.state.headerRows.length
+    //pass token in header
+      var rowHolder= update(this.state.headerRows[rowSize-1],{$merge:{id:this.state.headerRows.length, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
+      this.state.headerRows[rowSize-1]=rowHolder
+    //create new row
+      const newRow = this.createRowObjectData(rowSize+1);
+      rowHolder = update( this.state.headerRows, {$push: [newRow]})
+      this.state.headerRows[rowSize+1]=rowHolder
+      this.setState({
+        headerParams:this.state.headerRows
+      })
+      console.log(this.state.header,this.state.headerParams)
+    
       axios({
         method:httpMethod,
         url:this.state.url,
@@ -314,19 +318,13 @@ class Main extends Component {
       axios({
         method:  httpMethod,
         url:this.state.url,
-        // headers:this.state.header,
+        headers:this.state.header,
         data:JSON.stringify(this.state.body)
       })
         .then(function(res) {
           // res.body, res.headers, res.status
           console.log(res)
           console.log(res.data)
-          // if(this.state.sendAndDownload==true){
-          //   var element = document.createElement("a");
-          //   var file = new Blob(res.data, {type: 'text/plain'});
-          //   element.href = URL.createObjectURL(file);
-          //   element.download = "myFile.txt";
-          // }
         })
         .catch(function(err) {
           // err.message, err.response
@@ -359,9 +357,10 @@ class Main extends Component {
       })
     }
   }
-  saveHeader(newData) {
+  saveHeader(newData,headerRow) {
     this.setState({
-      header:newData
+      header:newData,
+      headerRows:headerRow
     })
 
   }
