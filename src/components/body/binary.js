@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import {Form, FormGroup, ControlLabel,FormControl} from 'react-bootstrap';
-import axios, { post } from 'axios';
+import {Form ,FormControl} from 'react-bootstrap';
 
 class Binary extends Component{
  
@@ -22,7 +21,7 @@ class Binary extends Component{
             var reader = new FileReader();
             // If we use onloadend, we need to check the readyState.
             reader.onloadend = function(evt) {
-                if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+                if (evt.target.readyState === FileReader.DONE) { // DONE == 2
                 result = evt.target.result;
                 }   resolve(true); 
             };

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {FormGroup, InputGroup,DropdownButton,Button,FormControl,MenuItem,SplitButton,Row,Col,Tabs, Tab } from 'react-bootstrap';
+import {FormGroup, InputGroup,DropdownButton,Button,FormControl,MenuItem,SplitButton,Row,Col,Tabs, Tab  } from 'react-bootstrap';
 import ReactDataGrid from 'react-data-grid';
 import update from 'immutability-helper';
 import axios from 'axios';
@@ -12,6 +12,7 @@ import Authorization from "./components/authorizations/authorization";
 import Header from "./components/Header";
 import Body from "./components/body";
 import Test from "./components/test";
+import Environment from "./components/environment"
 
 class Main extends Component {
   constructor(props, context) {
@@ -40,8 +41,9 @@ class Main extends Component {
       },
     ];
 
-    this.state = {
+    this.state = { 
       sendDownload:false,
+      SelectedEvt:[],
       headerParams:[],
       bodyParams:[],
       oauth1_consumerKey:"",
@@ -60,7 +62,8 @@ class Main extends Component {
        rows: this.createRows(1),
        selectedIndexes: [],
        showParams:false,
-       isDialogOpen: false
+       manageEnvironment: false,
+       addEnvironment:false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUrl = this.handleUrl.bind(this);
@@ -69,8 +72,22 @@ class Main extends Component {
     this.saveHeader =this.saveHeader.bind(this)
     this.saveBodyForm =this.saveBodyForm.bind(this)
     this.onSelectMethod = this.onSelectMethod.bind(this);
-    // this.addParams = this.addParams.bind(this);
+    this.saveEnvironment = this.saveEnvironment.bind(this);
   }
+
+  openDialog=()=>this.setState({ 
+    manageEnvironment: true,
+    addEnvironment:false,
+  })
+   addEnvironment=()=>this.setState({
+    manageEnvironment: false,
+    addEnvironment:true,
+  })
+  handleClose = () =>this.setState({
+    manageEnvironment: false,
+    addEnvironment:false,
+  })
+ 
   onSelectMethod(event){
     this.setState({
       httpmethod:event
@@ -113,7 +130,7 @@ class Main extends Component {
     let rowIndexes = rows.map(r => r.rowIdx);
     this.setState({selectedIndexes: this.state.selectedIndexes.filter(i => rowIndexes.indexOf(i) === -1 )});
   };
-  
+   
   operation =() =>{
     this.setState({
       showParams:!this.state.showParams
@@ -173,7 +190,6 @@ class Main extends Component {
   }
 
   handleUrl(updated){
-    console.log(updated.target.value)
     this.setState({url : updated.target.value},
       function(){
         this.parseQuery(this.state.url);
@@ -192,7 +208,6 @@ class Main extends Component {
   }
 
   parseQuery(url,currentRowId){
-    console.log(url)
     let obj = {};
     obj.params = {};
     let questionMark = url.indexOf('?');
@@ -270,6 +285,7 @@ class Main extends Component {
         this.parseQuery(url)
         // this.triggerQueryChange()
       }
+      url=this.checkEvtVar(url),
       axios({
         method:httpMethod,
         url:url,
@@ -301,10 +317,10 @@ class Main extends Component {
         headerParams:this.state.headerRows
       })
       console.log(this.state.header,this.state.headerParams)
-    
+       url=this.checkEvtVar(this.state.url),
       axios({
         method:httpMethod,
-        url:this.state.url,
+        url:url,
         headers:this.state.header,
         data:this.state.body
       }).then(function(response) {
@@ -314,10 +330,12 @@ class Main extends Component {
         console.log(err.response)
       });
     }
-    else{
+    else{ 
+      
+      url=this.checkEvtVar(this.state.url),
       axios({
         method:  httpMethod,
-        url:this.state.url,
+        url:url,
         headers:this.state.header,
         data:JSON.stringify(this.state.body)
       })
@@ -376,9 +394,36 @@ class Main extends Component {
       test:newData
     })
   }
+
+  saveEnvironment(selEvt){
+    this.setState({
+      SelectedEvt:selEvt
+    },function(){
+      console.log(this.state.SelectedEvt)
+    })
+  }
+
+  checkEvtVar(url){
+    var str= url,evtVar,
+      RegExp=/\{{([^{}]+)\}}/,
+      res = RegExp.exec(str);
+      if(res!==null){
+        this.state.SelectedEvt.forEach(function(e) {
+          if(e.variables===res[1]){
+            var start= str.indexOf(res[0]);
+            var end= str.indexOf("}}");
+            evtVar = str.substring(0,start)+e.currentVariable+ str.substring(end+2);
+          }
+        }, this);
+      return(evtVar)
+      }
+    
+  }
+
   render() {
     return (  
       <div>
+        <Environment environment={this.saveEnvironment.bind(this)}/>
         <Row >
         <Col componentClass={FormGroup} md={10}>
           <InputGroup>

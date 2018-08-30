@@ -37,3 +37,9 @@ button, input, optgroup, select, textarea {
   margin-top: 2px;
   margin-bottom:2px;
 }  
+.modal-container {
+  position: relative;
+}
+.modal-container .modal, .modal-container .modal-backdrop {
+  position: absolute;
+}
