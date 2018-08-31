@@ -44,6 +44,7 @@ class Main extends Component {
     this.state = { 
       sendDownload:false,
       SelectedEvt:[],
+      headerRows: this.createRows(1),
       headerParams:[],
       bodyParams:[],
       oauth1_consumerKey:"",
@@ -233,8 +234,7 @@ class Main extends Component {
         if(count< countParam){
           rowHolder[count].value = match[2];
           updatedRow= update(rowHolder[count],{$merge:{id:count+1, Value:match[2],key:match[1]}})
-          rowHolder[count]=updatedRow;
-          
+          rowHolder[count]=updatedRow;   
           this.state.rows=rowHolder;
           if(count===rowHolder.length-1){
            const newRow = this.createRowObjectData(count+1);
@@ -269,10 +269,9 @@ class Main extends Component {
         parameters=Object.assign(parameters,{oauth_token: this.state.oauth1_accessToken})
         url= this.state.url+"&oauth_consumer_key="+parameters.oauth_consumer_key+"&oauth_signature_method=HMAC-SHA1&oauth_nonce="+parameters.oauth_nonce+"&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_token="+parameters.oauth_token
         var obj= this.parseQuery(url),
-         tokenSecret =this.state.oauth1_tokenSecret,
+         tokenSecret =this.state.oauth1_tokenSecret
         // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
-        encodedSignature = oauthSignature.generate(httpMethod, obj.urlValue, obj.params,consumerSecret,tokenSecret )
-      
+        var encodedSignature = oauthSignature.generate(httpMethod, obj.urlValue, obj.params,consumerSecret,tokenSecret )
         url= this.state.url+"&oauth_consumer_key="+parameters.oauth_consumer_key+"&oauth_signature_method=HMAC-SHA1&oauth_nonce="+parameters.oauth_nonce+"&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_token="+parameters.oauth_token+"&oauth_signature="+encodedSignature
         this.parseQuery(url)
         // this.triggerQueryChange()
@@ -280,12 +279,11 @@ class Main extends Component {
       else{
         // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
         encodedSignature = oauthSignature.generate(httpMethod, url, parameters,consumerSecret )
-       
         url =this.state.url+"?oauth_consumer_key="+parameters.oauth_consumer_key+"&oauth_signature_method=HMAC-SHA1&oauth_nonce="+parameters.oauth_nonce+"&oauth_timestamp="+parameters.oauth_timestamp+"&oauth_signature="+ encodedSignature
         this.parseQuery(url)
         // this.triggerQueryChange()
       }
-      url=this.checkEvtVar(url),
+      url=this.checkEvtVar(url)
       axios({
         method:httpMethod,
         url:url,
@@ -295,7 +293,6 @@ class Main extends Component {
       .then(function(res) {
         // res.body, res.headers, res.status
         console.log('Upload successful!  Server responded with:', res);
-        console.log(res)
         console.log(res.data)
       })
       .catch(function(err) {
@@ -305,19 +302,18 @@ class Main extends Component {
     }  
     //---------------------------------------------------------------------------------------
     if(this.state.bearerToken!==""){
-      var rowSize=this.state.headerRows.length
-    //pass token in header
-      var rowHolder= update(this.state.headerRows[rowSize-1],{$merge:{id:this.state.headerRows.length, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
-      this.state.headerRows[rowSize-1]=rowHolder
-    //create new row
-      const newRow = this.createRowObjectData(rowSize+1);
-      rowHolder = update( this.state.headerRows, {$push: [newRow]})
-      this.state.headerRows[rowSize+1]=rowHolder
-      this.setState({
-        headerParams:this.state.headerRows
-      })
-      console.log(this.state.header,this.state.headerParams)
-       url=this.checkEvtVar(this.state.url),
+      this.state.header = Object.assign({}, this.state.header, {Authorization:"Bearer "+this.state.bearerToken })
+      const rowToUpdate=this.state.headerRows.length-1,
+      updatedRow= update(this.state.headerRows[rowToUpdate],{$merge:{id: rowToUpdate+1, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
+      this.state.headerRows[rowToUpdate]=updatedRow
+      //create new row
+        const newRow = this.createRowObjectData(rowToUpdate+1),
+        rowHolder = update( this.state.headerRows, {$push: [newRow]})
+        this.setState({
+          headerRows:rowHolder
+        })
+        
+      url=this.checkEvtVar(this.state.url)
       axios({
         method:httpMethod,
         url:url,
@@ -331,8 +327,7 @@ class Main extends Component {
       });
     }
     else{ 
-      
-      url=this.checkEvtVar(this.state.url),
+      url=this.checkEvtVar(this.state.url)
       axios({
         method:  httpMethod,
         url:url,
@@ -340,30 +335,28 @@ class Main extends Component {
         data:JSON.stringify(this.state.body)
       })
         .then(function(res) {
-          // res.body, res.headers, res.status
           console.log(res)
           console.log(res.data)
         })
         .catch(function(err) {
-          // err.message, err.response
           console.log(err.response)
       });
     }
   }
 
-  saveData(newData){
-    console.log(newData)
-    if(newData.name==="consumerKey"){
-      this.setState({oauth1_consumerKey:newData.value})
-    }else if(newData.name==="consumerSecret"){
-      this.setState({oauth1_consumerSecret:newData.value})
-    }else if(newData.name==="accessToken"){
-      this.setState({oauth1_accessToken:newData.value})
-    }else if(newData.name==="tokenSecret"){
-      this.setState({oauth1_tokenSecret:newData.value})
-    }else if(newData.name==="bearerToken"){
+  saveData(Data){
+    var newData=this.checkEvtVar(Data.value)
+    if(Data.name==="consumerKey"){
+      this.setState({oauth1_consumerKey:newData})
+    }else if(Data.name==="consumerSecret"){
+      this.setState({oauth1_consumerSecret:newData})
+    }else if(Data.name==="accessToken"){
+      this.setState({oauth1_accessToken:newData})
+    }else if(Data.name==="tokenSecret"){
+      this.setState({oauth1_tokenSecret:newData})
+    }else if(Data.name==="bearerToken"){
       this.setState({
-        bearerToken:newData.value,
+        bearerToken:newData,
       })
     }else{
       this.setState({
@@ -375,18 +368,18 @@ class Main extends Component {
       })
     }
   }
-  saveHeader(newData,headerRow) {
+  saveHeader(Data,headerRow) {
+    var newData=this.checkEvtVar(Data)
     this.setState({
       header:newData,
       headerRows:headerRow
     })
 
   }
-  saveBodyForm(newData) {
+  saveBodyForm(Data) {
+    var newData=this.checkEvtVar(Data)
     this.setState({
       body:newData
-    },function(){
-      console.log(this.state.body)
     })
   }
   savetest(newData){
@@ -415,7 +408,9 @@ class Main extends Component {
             evtVar = str.substring(0,start)+e.currentVariable+ str.substring(end+2);
           }
         }, this);
-      return(evtVar)
+        return(evtVar)
+      }else{
+        return(url)
       }
     
   }
@@ -489,7 +484,7 @@ class Main extends Component {
     
         <Tab className="container" eventKey={1} title="Authorization"><Authorization changeField={this.saveData.bind(this)}/></Tab>
         <Tab className="container" eventKey={2} title="Body"><Body  changeForm={this.saveBodyForm.bind(this)}  /></Tab>
-        <Tab className="container" eventKey={3} title="Headers"><Header  changeHeader={this.saveHeader.bind(this)} headerParams={this.state.headerParams}/></Tab>
+        <Tab className="container" eventKey={3} title="Headers"><Header  changeHeader={this.saveHeader.bind(this)} headerParams={this.state.headerRows}/></Tab>
         <Tab className="container" eventKey={4} title="Tests"><Test changeForm={this.savetest.bind(this)}/></Tab>
       </Tabs>
     </div> 

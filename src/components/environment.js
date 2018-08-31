@@ -116,45 +116,39 @@ class Environment extends Component{
    
     getCellActions(column, row) {
       if (column.key === "action") {
-        return [
-            {
-                icon: 'glyphicon glyphicon-remove',
-                callback:() => {
-                    if(row.id!==this.state.varRows.length){
-                        this.state.varRows.splice(row.id-1, 1);
-                        var rowHolder=this.state.varRows;
-                        for(let count=0;count<rowHolder.length;count++){//Restroed all rows ids 
-                            var updatedRow= update(rowHolder[count],{$merge:{id:count+1, variables:rowHolder[count].variables,intialVariable:rowHolder[count].intialVariable,currentVariable:rowHolder[count].currentVariable}})
-                            rowHolder[count]=updatedRow;
-                        }
-                        this.setState({varRows: this.state.varRows});
-                    };
-                }      
-            },
-            {
-                icon: 'glyphicon glyphicon-option-horizontal',
-                actions: [
-                {
-                    text: 'Presist',
-                    callback: () => { 
-                        var rowHolder=this.state.varRows;
-                        var updatedRow= update(rowHolder[row.id-1],{$merge:{id:row.id, variables:row.variables,intialVariable:row.currentVariable,currentVariable:row.currentVariable}})
-                        rowHolder[row.id-1]=updatedRow;
-                        this.setState({varRows:rowHolder});
-                     }
-                },
-                {
-                    text: 'Reset',
-                    callback: () => {
-                        var rowHolder=this.state.varRows;
-                        var updatedRow= update(rowHolder[row.id-1],{$merge:{id:row.id, variables:row.variables,intialVariable:row.intialVariable,currentVariable:row.intialVariable}})
-                        rowHolder[row.id-1]=updatedRow;
-                        this.setState({varRows:rowHolder});
+        return[{   
+            icon: 'glyphicon glyphicon-remove',
+            callback:() => {
+                if(row.id!==this.state.varRows.length){
+                    this.state.varRows.splice(row.id-1, 1);
+                    var rowHolder=this.state.varRows;
+                    for(let count=0;count<rowHolder.length;count++){//Restroed all rows ids 
+                        var updatedRow= update(rowHolder[count],{$merge:{id:count+1, variables:rowHolder[count].variables,intialVariable:rowHolder[count].intialVariable,currentVariable:rowHolder[count].currentVariable}})
+                        rowHolder[count]=updatedRow;
                     }
-                }
-                ]
+                    this.setState({varRows: this.state.varRows});
+                };
             }
-        ];
+        },{
+            icon: 'glyphicon glyphicon-option-horizontal',
+            actions: [{
+                text: 'Presist',
+                callback: () => { 
+                    var rowHolder=this.state.varRows;
+                    var updatedRow= update(rowHolder[row.id-1],{$merge:{id:row.id, variables:row.variables,intialVariable:row.currentVariable,currentVariable:row.currentVariable}})
+                    rowHolder[row.id-1]=updatedRow;
+                    this.setState({varRows:rowHolder});
+                }
+            },{
+                text: 'Reset',
+                callback: () => {
+                    var rowHolder=this.state.varRows;
+                    var updatedRow= update(rowHolder[row.id-1],{$merge:{id:row.id, variables:row.variables,intialVariable:row.intialVariable,currentVariable:row.intialVariable}})
+                    rowHolder[row.id-1]=updatedRow;
+                    this.setState({varRows:rowHolder});
+                }
+            }]
+        }];
       }
     }
 
@@ -185,13 +179,9 @@ class Environment extends Component{
     onChangeEvtName(e){
         this.setState({
             evtName:e.target.value
-        // },function(){
-        //     this.state.varRows.evtName=this.state.evtName
-        //     console.log(this.state.varRows, this.state.environments)
         })
     }
     addedEnvironment(){ 
-        console.log(this.state.varRows, this.state.environments)
         var addNewEvt=this.state.environments
         this.state.varRows.evtName=this.state.evtName
         addNewEvt = update(addNewEvt, {$push: [this.state.varRows]});
@@ -213,8 +203,7 @@ class Environment extends Component{
     duplicate(event){
         let rowNo=event.n,
         rowHolder=this.state.environments[rowNo]
-         rowHolder = Object.assign([], rowHolder, {evtName: rowHolder.evtName+ " Copy" })
-        //  rowHolder.evtName=rowHolder.evtName+ " _Copy"
+        rowHolder = Object.assign([], rowHolder, {evtName: rowHolder.evtName+ " Copy" })
         var addNewEvt=this.state.environments
         addNewEvt = update(addNewEvt, {$push: [rowHolder]});
         this.setState({
@@ -258,7 +247,7 @@ class Environment extends Component{
 
         const popoverClickRootClose = (
             <Popover id="popover-trigger-click-root-close" title={this.state.SelectedEvt.evtName}>
-                <strong onClick={this.editable}>Edit</strong> 
+                <strong onClick={this.editable}><Button bsStyle="link">Edit</Button></strong> 
                 <Table responsive>
                     <thead>
                         <tr>
