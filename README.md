@@ -10,15 +10,15 @@ Postman is a powerful API testing suite which has become a must-have tool for ma
 Install chrome extention Allow-Control-Allow-Origin:* from chrome web store. Install 
 [Allow-Control-Allow-Origin Extention](https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en)
 
-![Allow Origin](https://github.com/AmalHanif/postman/blob/master/public/img/allowOrigin.png)
+![Allow Origin](https://github.com/AmalHanif/postman/blob/master/public/img/allowOrigin.pn)
 
 
 ### Installing
 
-Clone or download from gitHub
+Clone or download this repo to your local machine using `https://github.com/AmalHanif/postman.git`
 
 
-install npm and start
+> Install npm and start
 
 ```
 $cd postman
