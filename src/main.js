@@ -312,7 +312,7 @@ class Main extends Component {
         this.setState({
           headerRows:rowHolder
         })
-        
+
       url=this.checkEvtVar(this.state.url)
       axios({
         method:httpMethod,
@@ -332,7 +332,7 @@ class Main extends Component {
         method:  httpMethod,
         url:url,
         headers:this.state.header,
-        data:JSON.stringify(this.state.body)
+        data:this.state.body
       })
         .then(function(res) {
           console.log(res)

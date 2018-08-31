@@ -14,7 +14,7 @@ class Body extends Component   {
       urlEncoded:false,
       raw:false,
       binary:false,
-      formData:"",
+      formData:{},
       TextTitle:"Text"
     }
     this.handleChange = this.handleChange.bind(this);
@@ -57,7 +57,6 @@ class Body extends Component   {
       formData:newData
     },function(){
       this.onChangeField();
-      console.log(this.state.formData)
     });
   }
   onChangeField() {
