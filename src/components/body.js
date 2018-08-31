@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import {DropdownButton,MenuItem } from 'react-bootstrap';
-// import {Link,BrowserRouter} from "react-router-dom";
-// import { Route, Switch } from "react-router";
 import Form  from "./body/form";
 import UrlEncoded from "./body/urlEncoded";
 import Raw from "./body/raw";
@@ -16,11 +14,13 @@ class Body extends Component   {
       urlEncoded:false,
       raw:false,
       binary:false,
-      formData:"" 
+      formData:"",
+      TextTitle:"Text"
     }
     this.handleChange = this.handleChange.bind(this);
     this.saveFormData =this.saveFormData.bind(this)
     this.operation = this.operation.bind(this);
+    this.onSelectEditor =this.onSelectEditor.bind(this);
   }
   
   handleChange(event) {
@@ -30,14 +30,11 @@ class Body extends Component   {
       urlEncoded:false,
       raw:false,
       binary:false
-    },function(){ this.operation(event);}
-  );
-  //  if(raw){
-  //    this.setState({
-  //      selector:true
-  //    })
-  //  }
+    },function(){
+       this.operation(event);
+    })
   };
+
   operation(event){
     let i= this.state.value;
     switch (i) {
@@ -65,7 +62,12 @@ class Body extends Component   {
   }
   onChangeField() {
     this.props.changeForm(this.state.formData);
-    // this.props.changeFieldValue(this.state.oAuth1Value)
+  }
+
+  onSelectEditor(value){
+    this.setState({
+      TextTitle:value
+    })
   }
 
   render() {
@@ -100,14 +102,14 @@ class Body extends Component   {
         </div>}
         
         {this.state.raw&&<div>
-          <DropdownButton title="TEXT" id="dropdown-size-medium">
-            <MenuItem eventKey="1">Text</MenuItem>
-            <MenuItem eventKey="2">Text(text/plain)</MenuItem>
-            <MenuItem eventKey="3">JSON(application/json)</MenuItem>
-            <MenuItem eventKey="4">JavaScript(application/javaScript)</MenuItem>
-            <MenuItem eventKey="5">XML(application/xml)</MenuItem>
-            <MenuItem eventKey="6">XML(text/xml)</MenuItem>
-            <MenuItem eventKey="7">HTML(text/html)</MenuItem>
+          <DropdownButton title={this.state.TextTitle} id="dropdown-size-medium" value={this.state.TextTitle}>
+            <MenuItem onSelect={(event) => this.onSelectEditor(event)} eventKey="Text">Text</MenuItem>
+            <MenuItem onSelect={(event) => this.onSelectEditor(event)} eventKey="Text(text/plain)">Text(text/plain)</MenuItem>
+            <MenuItem onSelect={(event) => this.onSelectEditor(event)} eventKey="JSON(application/json)">JSON(application/json)</MenuItem>
+            <MenuItem onSelect={(event) => this.onSelectEditor(event)} eventKey="JavaScript(application/javaScript)">JavaScript(application/javaScript)</MenuItem>
+            <MenuItem onSelect={(event) => this.onSelectEditor(event)} eventKey="XML(application/xml)">XML(application/xml)</MenuItem>
+            <MenuItem onSelect={(event) => this.onSelectEditor(event)} eventKey="XML(text/xml)">XML(text/xml)</MenuItem>
+            <MenuItem onSelect={(event) => this.onSelectEditor(event)} eventKey="HTML(text/html)">HTML(text/html)</MenuItem>
           </DropdownButton>
        
           <Raw changeForm={this.saveFormData.bind(this)} />

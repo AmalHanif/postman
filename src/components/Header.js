@@ -31,8 +31,6 @@ class Header extends React.Component {
     ];
 
     this.state = {
-      keyValue: props.initialKey,
-      // value: props.initialValue,
        rows: this.createRows(1) 
     };
   }
@@ -106,7 +104,6 @@ class Header extends React.Component {
   onChangeField() {
     var header={},
     arr=this.state.rows;
-
     arr.forEach(function(element) {
       if(element.key!==""){
         var K= element.key, V=element.Value;
@@ -114,16 +111,19 @@ class Header extends React.Component {
       }
     }, this);
     this.props.changeHeader(header,this.state.rows);
-    // this.props.changeFieldValue(this.state.oAuth1Value)
-  } 
-  componentDidmount(){
+  }
 
-    let updatedRow = update(this.state.rows, {$merge: this.props.headerParams});
-    this.state.rows= updatedRow
+  componentDidUpdate(prevProps){
+    if (this.props.headerParams!== prevProps.headerParams) {
+      this.setState({
+        rows:this.props.headerParams
+      })
+    }
   }
 
   render() {
     return (
+      <div>
       <ReactDataGrid
         ref={ node => this.grid = node }
         enableCellSelect={true}
@@ -135,7 +135,9 @@ class Header extends React.Component {
         rowHeight={40}
         minHeight={200}
         minWidth={1080}
-        rowScrollTimeout={200} />
+        rowScrollTimeout={200} />,
+      </div>
+         
       );
   }
 }
@@ -143,6 +145,5 @@ class Header extends React.Component {
 export default Header;
 
 Header.propTypes = {
- headerParams: PropTypes.array
-  // description:PropTypes.string
+  headerParams: PropTypes.array
 }
