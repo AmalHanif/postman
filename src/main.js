@@ -137,30 +137,40 @@ class Main extends Component {
       showParams:!this.state.showParams
     })
   };
-  
-  handleChange(event){
-    let rowToUpdate = this.state.rows[event.fromRow]
-    let updatedRow = update(rowToUpdate, {$merge: event.updated});
-    this.state.rows[event.fromRow]= updatedRow;
-    console.log(event);
 
-    // only add if row has both key and value
-    let currentRow = this.state.rows[event.fromRow];
-
-    if (currentRow.key && currentRow.value) {
-      this.state.rows[event.fromRow].is_complete = true
+  handleChange= ({ fromRow, toRow, updated,newRowIndex,numberOfRows,rowIds }) => {
+    let rows = this.state.rows.slice();
+    for (let i = fromRow; i <= toRow; i++) {
+      if(this.state.rows.length===rows[i].id){
+        let rowToUpdate = rows[i];
+        let updatedRow = update(rowToUpdate, {$merge: updated});
+        rows[i] = updatedRow;
+        if(rows[i].key!=="" || rows[i].value!=="" ||rows[i].description!=="" ){
+          const newRow = this.createRowObjectData(rows.length);
+          rows = update(rows, {$push: [newRow]}); 
+        }   
+      }else{
+        let rowToUpdate = rows[i];
+        let updatedRow = update(rowToUpdate, {$merge: updated});
+        rows[i] = updatedRow;
+      }  
     }
-    // add new row
-    if(this.state.rows.length===event.fromRowId){
-      if(currentRow.key!=="" || currentRow.value!=="" ||currentRow.description!=="" ){ 
-        const newRow = this.createRowObjectData(currentRow.id);
-        this.state.rows = update( this.state.rows, {$push: [newRow]});   
+    rows.map((e, n) =>{
+        e.id=n+1
+      if((e.key===""&&e.Value==="")&&e.id!==rows.length){
+        rows.splice(n, 1);
       }
-    }  
-    // ----
+    },this)
+     // only add if row has both key and value
+    let currentRow = rows[fromRow];
+    if (currentRow.key && currentRow.value) {
+      currentRow.is_complete = true
+    }
 
-    this.triggerQueryChange(currentRow.id-1);
-    console.log(this.state);
+    this.setState({ rows },function(){
+      this.triggerQueryChange(currentRow.id-1);
+      console.log(this.state);
+    })
   };
 
   triggerQueryChange(currentRowId){
@@ -217,31 +227,32 @@ class Main extends Component {
     }else{
       obj.urlValue = url.substring(0,questionMark);
     }
-    var regex = /[?&]([^=#]+)=([^&#]*)/g,
-        match;
-    var numOfParam = url.match(/[a-z\d]+=[a-z\d]+/gi);
-    var countParam = numOfParam? numOfParam.length : 0;
-    
-    let rowHolder = this.state.rows,
-        updatedRow=[];
+    let
+      regex = /[?&]([^=#]+|)(=|)([^&#]*)/g,
+      match,
+      rowHolder = this.state.rows,
+      updatedRow=[];
 
     if(currentRowId===undefined){
-      this.state.rows=null;
+      
       let count=0;
       while (match = regex.exec(url)) {
-        obj.params[match[1]] = match[2];
+        obj.params[match[1]] = match[3];
 
-        if(count< countParam){
-          rowHolder[count].value = match[2];
-          updatedRow= update(rowHolder[count],{$merge:{id:count+1, Value:match[2],key:match[1]}})
+          rowHolder[count].value = match[3];
+          updatedRow= update(rowHolder[count],{$merge:{id:count+1, Value:match[3],key:match[1]}})
           rowHolder[count]=updatedRow;   
           this.state.rows=rowHolder;
           if(count===rowHolder.length-1){
            const newRow = this.createRowObjectData(count+1);
             rowHolder = update( this.state.rows, {$push: [newRow]})
           }
-          count+=1
-        }
+          count+=1;
+           rowHolder.map((e, n) =>{
+            if((e.key===""&&e.value==="")&&e.id!==rowHolder.length){
+              rowHolder.splice(n, 1);
+            }
+          },this)
       } this.setState( {rows: rowHolder});
     }
     return obj;
@@ -302,14 +313,18 @@ class Main extends Component {
     }  
     //---------------------------------------------------------------------------------------
     if(this.state.bearerToken!==""){
-      this.state.header = Object.assign({}, this.state.header, {Authorization:"Bearer "+this.state.bearerToken })
-      const rowToUpdate=this.state.headerRows.length-1,
-      updatedRow= update(this.state.headerRows[rowToUpdate],{$merge:{id: rowToUpdate+1, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
-      this.state.headerRows[rowToUpdate]=updatedRow
+      const 
+        updatedHeader = Object.assign({}, this.state.header, {Authorization:"Bearer "+this.state.bearerToken }),
+        rows=this.state.headerRows,
+        lastRow=rows.length-1,
+        updatedRow= update(rows[lastRow],{$merge:{id: lastRow+1, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
+        
+        rows[lastRow]=updatedRow
       //create new row
-        const newRow = this.createRowObjectData(rowToUpdate+1),
+        const newRow = this.createRowObjectData(lastRow+1),
         rowHolder = update( this.state.headerRows, {$push: [newRow]})
         this.setState({
+          header:updatedHeader,
           headerRows:rowHolder
         })
 
@@ -368,14 +383,15 @@ class Main extends Component {
       })
     }
   }
+  
   saveHeader(Data,headerRow) {
     var newData=this.checkEvtVar(Data)
     this.setState({
       header:newData,
       headerRows:headerRow
     })
-
   }
+
   saveBodyForm(Data) {
     var newData=this.checkEvtVar(Data)
     this.setState({
