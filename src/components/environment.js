@@ -182,20 +182,24 @@ class Environment extends Component{
         })
     }
     addedEnvironment(){ 
-        var addNewEvt=this.state.environments
-        this.state.varRows.evtName=this.state.evtName
-        addNewEvt = update(addNewEvt, {$push: [this.state.varRows]});
+        var addNewEvt=this.state.environments,
+        updatedRow=this.state.varRows
+        updatedRow.evtName=this.state.evtName
+        addNewEvt = update(addNewEvt, {$push: [updatedRow]});
     
         this.setState({
-            SelectedEvt:this.state.varRows,
+            SelectedEvt:updatedRow,
             environments:addNewEvt,
             varRows:[],
         },function(){
             console.log(this.state.environments);
-            const newRow = this.createRowObjectData(0);
-            this.state.varRows = update(this.state.varRows, {$push: [newRow]});   
-            }   
-        );
+            const newRow = this.createRowObjectData(0),
+            rowHolder= update(this.state.varRows, {$push: [newRow]}); 
+            this.setState({
+                varRows:rowHolder
+            })  
+        });
+
         this.openDialog();
         
     }
@@ -232,10 +236,15 @@ class Environment extends Component{
             varRows:this.state.SelectedEvt,
             evtName:this.state.evtName
         },function(){
-            const newRow = this.createRowObjectData(0);
-            this.state.varRows = update(this.state.varRows, {$push: [newRow]});   
-           this.addEnvironment(); }   
-        );
+            if(this.state.varRows.length===0){
+              const newRow = this.createRowObjectData(0),
+                rowUpdate = update(this.state.varRows, {$push: [newRow]}); 
+                this.setState({
+                    varRows:rowUpdate
+                })  
+            }
+            this.addEnvironment();
+        });
         
     }
 
@@ -275,7 +284,6 @@ class Environment extends Component{
         <Row  className="show-grid">
           <Col componentClass={FormGroup} md={3} xsOffset={8}>
             <FormControl name="Environment" onChange={this.handleSelect} title="no Environment" componentClass="select" >
-            
             {this.state.environments.map((e, n) =>  
                 <option key={n} value={n}>{e.evtName}</option>
             )} 
