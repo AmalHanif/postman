@@ -5,6 +5,9 @@ body{
   margin-right: 0px;
   margin-left: -15px;
 }
+input:invalid:not(:focus) {
+  outline: 1px solid #f00;
+}
 ul.nav-tabs li {
   display: inline;
   list-style-type: none;

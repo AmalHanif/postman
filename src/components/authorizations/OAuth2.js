@@ -233,7 +233,7 @@ export class OAuth2 extends Component {
     var promise = new Promise(function(resolve, reject) {
       setTimeout(checkUrl
         , 10000)
-
+        
       function checkUrl(){
         const auth_code=popup.location.search,
         code =auth_code.substring(6);
@@ -468,13 +468,13 @@ export class OAuth2 extends Component {
                     </Col>
                   </FormGroup>
                   {this.state.CallBackURL && 
-                    <FieldGroup name="CallBackURL" label="Call back URL"  onBlur={this.handleChange} type="url" value={this.state.CallbackUrl} placeholder="http://your-application.com/registered/callback" />
+                    <FieldGroup type="url" name="CallBackURL" label="Call back URL" pattern="http://.*" size="20" onBlur={this.handleChange} value={this.state.CallbackUrl} placeholder="http://your-application.com/registered/callback" />
                   }
                   {this.state.AuthUrl &&
-                    <FieldGroup name="AuthURL" label="Auth URL"  onBlur={this.handleChange} type="url" value={this.state.Authurl} placeholder="https://example.com/login/oauth/authorize" />
+                    <FieldGroup name="AuthURL" label="Auth URL"  onBlur={this.handleChange} type="url" pattern="https://.*" size="20" value={this.state.Authurl} placeholder="https://example.com/login/oauth/authorize" />
                   }
                   {this.state.AccessTokenUrl &&
-                    <FieldGroup name="AccessTokenURL" label="Access Token URL"  onBlur={this.handleChange} type="url" value={this.state.accessTokenUrl} placeholder="https://example.com/login/oauth/access_token" />
+                    <FieldGroup name="AccessTokenURL" label="Access Token URL"  onBlur={this.handleChange} type="url" pattern="https://.*" size="20" value={this.state.accessTokenUrl} placeholder="https://example.com/login/oauth/access_token" />
                   }
                   {this.state.Password &&
                     <div>

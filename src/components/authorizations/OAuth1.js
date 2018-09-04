@@ -104,7 +104,7 @@ export class OAuth1 extends Component {
           <FormGroup>
             <Col componentClass={ControlLabel} md={4}>Realm  </Col>
             <Col md={8}>
-              <FormControl type="text" placeholder="testrealm@example.com" />
+              <FormControl type="email" placeholder="testrealm@example.com" />
             </Col>
           </FormGroup>     
         </Form> 
