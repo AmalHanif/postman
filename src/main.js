@@ -351,9 +351,9 @@ class Main extends Component {
       })
     }
     axiosTest().then(data => {
-      console.log({ message: 'Request received!', data })
+      var result=({ message: 'Request received!', data })
       this.setState({
-        response:data
+        response:result
       })
     })  
   }
