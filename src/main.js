@@ -45,8 +45,7 @@ class Main extends Component {
       sendDownload:false,
       SelectedEvt:[],
       headerRows: this.createRows(1),
-      headerParams:[],
-      bodyParams:[],
+      body:this.createRows(1),
       oauth1_consumerKey:"",
       oauth1_consumerSecret:"",
       oauth1_accessToken:"",
@@ -54,7 +53,7 @@ class Main extends Component {
       bearerToken:"",
       httpmethod:"GET",
       header:"",
-      body:"",
+      response:"",
        key:"",
        url:"",
        value:"",
@@ -70,8 +69,11 @@ class Main extends Component {
     this.handleUrl = this.handleUrl.bind(this);
     this.sendRequest = this.sendRequest.bind(this);
     this.saveData = this.saveData.bind(this);
-    this.saveHeader =this.saveHeader.bind(this)
-    this.saveBodyForm =this.saveBodyForm.bind(this)
+    this.saveHeader =this.saveHeader.bind(this);
+    this.saveBodyForm =this.saveBodyForm.bind(this);
+    this.savetestParameters=this.savetestParameters.bind(this);
+    this.savetestheader=this.savetestheader.bind(this);
+    this.savetestBody=this.savetestBody.bind(this);
     this.onSelectMethod = this.onSelectMethod.bind(this);
     this.saveEnvironment = this.saveEnvironment.bind(this);
   }
@@ -211,7 +213,7 @@ class Main extends Component {
   findInArray(array, needle){
     for (var i = 0; i < array.length; i++) {
       var element = array[i];
-      if (element.key === needle[1]|| element.Value===needle[2]){
+      if (element.key === needle[1]|| element.Value===needle[2]|| element.key === needle){
         return i;
       }
     }
@@ -258,8 +260,11 @@ class Main extends Component {
     return obj;
   }
   sendRequest(){
-    var httpMethod = this.state.httpmethod,
-    url = this.state.url;
+    var 
+      httpMethod = this.state.httpmethod,
+      header=this.state.header,
+      body=this.state.body,
+      url=this.checkEvtVar(this.state.url)
 
     if(this.state.oauth1_consumerKey!==""){
       const timestamp= new Date().getTime() / 1000| 0,
@@ -295,68 +300,62 @@ class Main extends Component {
         // this.triggerQueryChange()
       }
       url=this.checkEvtVar(url)
-      axios({
-        method:httpMethod,
-        url:url,
-        headers:this.state.header,
-        data:this.state.body
-      })
-      .then(function(res) {
-        // res.body, res.headers, res.status
-        console.log('Upload successful!  Server responded with:', res);
-        console.log(res.data)
-      })
-      .catch(function(err) {
-        // err.message, err.response
-        console.log(err.response)
-      });
+      this.axiosRequest(httpMethod,url)
     }  
     //---------------------------------------------------------------------------------------
     if(this.state.bearerToken!==""){
-      const 
+      const body= this.state.body,
         updatedHeader = Object.assign({}, this.state.header, {Authorization:"Bearer "+this.state.bearerToken }),
         rows=this.state.headerRows,
         lastRow=rows.length-1,
-        updatedRow= update(rows[lastRow],{$merge:{id: lastRow+1, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
-        
-        rows[lastRow]=updatedRow
-      //create new row
-        const newRow = this.createRowObjectData(lastRow+1),
-        rowHolder = update( this.state.headerRows, {$push: [newRow]})
-        this.setState({
-          header:updatedHeader,
-          headerRows:rowHolder
-        })
-
-      url=this.checkEvtVar(this.state.url)
-      axios({
-        method:httpMethod,
-        url:url,
-        headers:this.state.header,
-        data:this.state.body
-      }).then(function(response) {
-        console.log('Upload successful! Server responded with:', response.data)
-      }).catch(function(err) {
-        // err.message, err.response
-        console.log(err.response)
-      });
+        index= this.findInArray(rows,"Authorization")
+        if(index!=-1){
+          var updatedRow= update(rows[index],{$merge:{id: index+1, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
+          rows[index]=updatedRow
+          this.setState({
+            header:updatedHeader,
+            headerRows:rows
+          })
+        }else{
+          var updatedRow= update(rows[lastRow],{$merge:{id: lastRow+1, key:"Authorization", Value :"Bearer "+this.state.bearerToken}})
+          rows[lastRow]=updatedRow
+          //create new row
+          const newRow = this.createRowObjectData(lastRow+1),
+          rowHolder = update( this.state.headerRows, {$push: [newRow]})
+          this.setState({
+            header:updatedHeader,
+            headerRows:rowHolder
+          })
+        }
+        header=updatedHeader
+        this.axiosRequest(httpMethod,url,header,body)
     }
     else{ 
-      url=this.checkEvtVar(this.state.url)
-      axios({
-        method:  httpMethod,
+      this.axiosRequest(httpMethod,url,header,body)
+    } 
+  }
+
+  axiosRequest(httpMethod,url,header,body){
+    function axiosTest() {
+      return axios({
+        method:httpMethod,
         url:url,
-        headers:this.state.header,
-        data:this.state.body
+        headers:header,
+        data:body
+      }).then(res=> {
+        console.log('Upload successful! Server responded with:', res.data)
+        return res.data 
+      }).catch(err =>{
+        // err.message, err.response
+        console.log(err)
       })
-        .then(function(res) {
-          console.log(res)
-          console.log(res.data)
-        })
-        .catch(function(err) {
-          console.log(err.response)
-      });
     }
+    axiosTest().then(data => {
+      console.log({ message: 'Request received!', data })
+      this.setState({
+        response:data
+      })
+    })  
   }
 
   saveData(Data){
@@ -394,13 +393,28 @@ class Main extends Component {
 
   saveBodyForm(Data) {
     var newData=this.checkEvtVar(Data)
+    console.log( newData)
+    this.setState({
+      body:newData
+    },)
+  }
+  
+  savetestheader(Data){
+    var newData=this.checkEvtVar(Data)
+    this.setState({
+      header:newData
+    })
+  }
+  savetestBody(Data){
+    var newData=this.checkEvtVar(Data)
     this.setState({
       body:newData
     })
   }
-  savetest(newData){
+  savetestParameters(Data){
+    var newData=this.checkEvtVar(Data)
     this.setState({
-      test:newData
+      rows:newData
     })
   }
 
@@ -414,21 +428,20 @@ class Main extends Component {
 
   checkEvtVar(url){
     var str= url,evtVar,
-      RegExp=/\{{([^{}]+)\}}/,
-      res = RegExp.exec(str);
-      if(res!==null){
-        this.state.SelectedEvt.forEach(function(e) {
-          if(e.variables===res[1]){
-            var start= str.indexOf(res[0]);
-            var end= str.indexOf("}}");
-            evtVar = str.substring(0,start)+e.currentVariable+ str.substring(end+2);
-          }
-        }, this);
-        return(evtVar)
-      }else{
-        return(url)
-      }
-    
+    RegExp=/\{{([^{}]+)\}}/,
+    res = RegExp.exec(str);
+    if(res!==null){
+      this.state.SelectedEvt.forEach(function(e) {
+        if(e.variables===res[1]){
+          var start= str.indexOf(res[0]);
+          var end= str.indexOf("}}");
+          evtVar = str.substring(0,start)+e.currentVariable+ str.substring(end+2);
+        }
+      }, this);
+      return(evtVar)
+    }else{
+      return(url)
+    }
   }
 
   render() {
@@ -501,7 +514,12 @@ class Main extends Component {
         <Tab className="container" eventKey={1} title="Authorization"><Authorization changeField={this.saveData.bind(this)}/></Tab>
         <Tab className="container" eventKey={2} title="Body"><Body  changeForm={this.saveBodyForm.bind(this)}  /></Tab>
         <Tab className="container" eventKey={3} title="Headers"><Header  changeHeader={this.saveHeader.bind(this)} headerParams={this.state.headerRows}/></Tab>
-        <Tab className="container" eventKey={4} title="Tests"><Test changeForm={this.savetest.bind(this)}/></Tab>
+        <Tab className="container" eventKey={4} title="Tests"><Test 
+        changeTestParameters={this.savetestParameters.bind(this)} 
+        changeTestHeader={this.savetestheader.bind(this)}
+        changeTestBody={this.savetestBody.bind(this)}
+        response={this.state.response}
+        bodyParams={this.state.body} headerParams={this.state.headerRows} parameters={this.state.rows}/></Tab>
       </Tabs>
     </div> 
     );

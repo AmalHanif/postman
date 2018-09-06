@@ -5,6 +5,12 @@ body{
   margin-right: 0px;
   margin-left: -15px;
 }
+hr {
+	border: none;
+	color:#fb4d0a;
+  background-color:#fb4d0a;
+  height:1px;
+}
 input:invalid:not(:focus) {
   outline: 1px solid #f00;
 }

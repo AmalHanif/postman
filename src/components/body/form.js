@@ -64,11 +64,6 @@ class Form extends React.Component {
 
   
   handleGridRowsUpdated = ({ fromRow, toRow, updated,newRowIndex,numberOfRows,rowIds }) => {
-    
-    // if(this.props.initialKey!==""&&this.props.initialValue!==""){
-    //   updated={key:this.props.initialKey,value:this.props.initialValue};
-    //   fromRow=this.state.rows.length-1;
-    // }
     let rows = this.state.rows.slice();
     for (let i = fromRow; i <= toRow; i++) {
       if(this.state.rows.length===rows[i].id){
