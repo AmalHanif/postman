@@ -282,14 +282,14 @@ class Environment extends Component{
         return (
         <div>
         <Row  className="show-grid">
-          <Col componentClass={FormGroup} md={3} xsOffset={8}>
+          <Col componentClass={FormGroup} md={3} xsOffset={7}>
             <FormControl name="Environment" onChange={this.handleSelect} title="no Environment" componentClass="select" >
             {this.state.environments.map((e, n) =>  
                 <option key={n} value={n}>{e.evtName}</option>
             )} 
             </FormControl> 
           </Col>  
-          <Col md={1}>
+          <Col >
             <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={popoverClickRootClose} >
                 <Button>
                     <Glyphicon glyph="glyphicon glyphicon-eye-open" />
