@@ -449,7 +449,7 @@ class Main extends Component {
       <div>
         <Environment environment={this.saveEnvironment.bind(this)}/>
         <Row >
-        <Col componentClass={FormGroup} md={10}>
+        <Col componentClass={FormGroup} md={10} xs={7}>
           <InputGroup>
             <DropdownButton componentClass={InputGroup.Button} id="input-dropdown-addon" title={this.state.httpmethod} onSelect={this.onSelectMethod}>
               <MenuItem defaultValue="GET" eventKey="GET" >GET</MenuItem>

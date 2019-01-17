@@ -82,6 +82,7 @@ class Form extends React.Component {
         rows[i] = updatedRow;
       }  
     }
+    
     this.setState({ rows },function(){
       this.onChangeField();
     })
@@ -106,14 +107,13 @@ class Form extends React.Component {
       <ReactDataGrid
         ref={ node => this.grid = node }
         enableCellSelect={true}
-        columns={this.getColumns()}
+        columns={this._columns}
         rowGetter={this.getRowAt}
-        rowsCount={this.getSize()}
+        rowsCount={this.state.rows.length}
         enableRowSelect={true}
         onGridRowsUpdated={(this.handleGridRowsUpdated)}
         rowHeight={40}
         minHeight={100}
-        minWidth={1080}
         rowScrollTimeout={200} />);
   }
 }

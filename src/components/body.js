@@ -72,8 +72,8 @@ class Body extends Component   {
   render() {
     return(
       <div>
-        <form> 
-        <div className="radio" >
+        <form>
+        <div >
           <label>
             <input type="radio" value="form"  checked={this.state.value==="form" } onChange={this.handleChange}/>
               form-data

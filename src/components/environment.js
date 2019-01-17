@@ -282,8 +282,8 @@ class Environment extends Component{
         return (
         <div>
         <Row  className="show-grid">
-          <Col componentClass={FormGroup} md={3} xsOffset={7}>
-            <FormControl name="Environment" onChange={this.handleSelect} title="no Environment" componentClass="select" >
+          <Col componentClass={FormGroup} md={3} xs={7} mdOffset={7} xsOffset={1}>
+            <FormControl componentClass="select"  name="Environment" onChange={this.handleSelect} placeholder="Environment Variable">
             {this.state.environments.map((e, n) =>  
                 <option key={n} value={n}>{e.evtName}</option>
             )} 
@@ -302,7 +302,7 @@ class Environment extends Component{
           </Col> 
         </Row>
         {this.state.manageEnvironment &&
-          <Dialog class="dialog" title="MANAGE ENVIORMENTS" isResizable={true} modal={true} width={800} onClose={this.handleClose}  
+          <Dialog class="dialog" title="MANAGE ENVIORMENTS" isResizable={true} modal={true} width={700} onClose={this.handleClose}  
            buttons={[{bsStyle:"warning", text: "Globals",onClick: () => this.handleClose()},{ text: "Import",onClick: () => this.handleClose()},{ text: "Add",onClick:() => this.addEnvironment()}]}
           > 
             <p>An environment is a set of variables that allow you to switch the context of your requests. Environments can be shared between multiple workspaces.
@@ -329,7 +329,7 @@ class Environment extends Component{
           </Dialog>
         }
         {this.state.addEnvironment &&
-            <Dialog class="dialog" title="MANAGE ENVIORMENTS" modal={true} width={800} onClose={this.handleClose} buttons={[{bsStyle:"warning", text: "cancel",onClick: () => this.handleClose()},{bsStyle:"warning", text: "Add",onClick:() => this.addedEnvironment(this.state.evtName)}]}> 
+            <Dialog class="dialog" title="MANAGE ENVIORMENTS" modal={true} width={700} onClose={this.handleClose} buttons={[{bsStyle:"warning", text: "cancel",onClick: () => this.handleClose()},{bsStyle:"warning", text: "Add",onClick:() => this.addedEnvironment(this.state.evtName)}]}> 
                 <h4>Add Environment</h4>
                 <FormControl type="text" placeholder="Environment Name" onChange={this.onChangeEvtName} value={this.state.evtName}/>
                 <br/>
